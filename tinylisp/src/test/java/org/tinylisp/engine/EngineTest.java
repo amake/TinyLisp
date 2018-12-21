@@ -75,4 +75,11 @@ public class EngineTest {
         assertTrue(env.containsKey(Engine.TLSymbolExpression.of("foo")));
         assertEquals(Engine.TLNumberExpression.of(123), env.get(Engine.TLSymbolExpression.of("foo")));
     }
+
+    @Test
+    public void testLambda() throws Exception {
+        assertEquals(2, engine.execute("((lambda (x) (add 1 x)) 1)", env));
+        engine.execute("(set increment (lambda (x) (add 1 x)))", env);
+        assertEquals(5, engine.execute("(increment 4)", env));
+    }
 }

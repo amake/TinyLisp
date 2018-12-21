@@ -35,6 +35,30 @@ public class Engine {
         }
     }
 
+    static class TLLambdaFunction implements TLFunction {
+        static TLLambdaFunction of(TLListExpression params, TLListExpression body, TLEnvironment env, Engine engine) {
+            TLLambdaFunction lambda = new TLLambdaFunction();
+            lambda.params = params;
+            lambda.body = body;
+            lambda.env = new TLEnvironment(env);
+            lambda.engine = engine;
+            return lambda;
+        }
+        private TLListExpression params;
+        private TLListExpression body;
+        private TLEnvironment env;
+        private Engine engine;
+        @Override
+        public TLExpression invoke(TLListExpression args) throws Exception {
+            for (int i = 0; i < params.size(); i++) {
+                TLSymbolExpression param = (TLSymbolExpression) params.get(i);
+                TLExpression arg = args.get(i);
+                env.put(param, arg);
+            }
+            return engine.evaluate(body, env);
+        }
+    }
+
     static class TLListExpression extends ArrayList<TLExpression> implements TLExpression {
         public TLListExpression() {
             super();
@@ -128,6 +152,10 @@ public class Engine {
                 TLExpression value = expression.get(2);
                 environment.put(name, evaluate(value, environment));
                 return TLJavaObjectExpression.of(null);
+            } else if (first instanceof TLSymbolExpression && "lambda".equals(((TLSymbolExpression) first).getValue())) {
+                TLListExpression params = (TLListExpression) expression.get(1);
+                TLListExpression body = (TLListExpression) expression.get(2);
+                return TLLambdaFunction.of(params, body, environment, this);
             } else {
                 // First item wasn't a special form so it must evaluate to a function
                 TLFunction function = (TLFunction) evaluate(first, environment);
