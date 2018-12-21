@@ -1,0 +1,10 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.12'
+}
+
+sourceCompatibility = "7"
+targetCompatibility = "7"
