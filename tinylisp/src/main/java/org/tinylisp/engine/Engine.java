@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.Map;
 
 public class Engine {
 
@@ -31,6 +32,12 @@ public class Engine {
     }
 
     static class TLListExpression extends ArrayList<TLExpression> implements TLExpression {
+        public TLListExpression() {
+            super();
+        }
+        public TLListExpression(List<TLExpression> list) {
+            super(list);
+        }
     }
 
     abstract static class TLAtomExpression<T> implements TLExpression {
@@ -90,6 +97,12 @@ public class Engine {
     }
 
     static class TLEnvironment extends HashMap<TLSymbolExpression, TLExpression> {
+        public TLEnvironment() {
+            super();
+        }
+        public TLEnvironment(Map<TLSymbolExpression, TLExpression> env) {
+            super(env);
+        }
     }
 
     public TLAtomExpression apply(TLFunction function, List<Object> arguments, TLEnvironment environment) throws Exception {
