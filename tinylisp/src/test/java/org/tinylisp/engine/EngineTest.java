@@ -17,23 +17,23 @@ public class EngineTest {
         engine = new Engine();
         env = new Engine.TLEnvironment();
         env.put(Engine.TLSymbolExpression.of("add"), new Engine.TLFunction() {
-            @Override public Object invoke(Object... args) {
+            @Override public Engine.TLExpression invoke(Engine.TLListExpression args) {
                 int result = 0;
-                for (Object arg : args) {
-                    result += (Integer) arg;
+                for (Engine.TLExpression arg : args) {
+                    result += (Integer) ((Engine.TLAtomExpression) arg).getValue();
                 }
-                return result;
+                return Engine.TLJavaObjectExpression.of(result);
             }
         });
         env.put(Engine.TLSymbolExpression.of("addArray"), new Engine.TLFunction() {
-            @Override public Object invoke(Object... args) {
+            @Override public Engine.TLExpression invoke(Engine.TLListExpression args) {
                 int result = 0;
-                for (Object arr : args) {
-                    for (Object n : (Object[]) arr) {
+                for (Engine.TLExpression arg : args) {
+                    for (Object n : ((Engine.TLArrayExpression) arg).getValue()) {
                         result += (Integer) n;
                     }
                 }
-                return result;
+                return Engine.TLJavaObjectExpression.of(result);
             }
         });
     }

@@ -14,7 +14,7 @@ public class Engine {
     }
 
     interface TLFunction extends TLExpression {
-        Object invoke(Object... args) throws Exception;
+        TLExpression invoke(TLListExpression args) throws Exception;
     }
 
     static class TLMethodFunction implements TLFunction {
@@ -26,8 +26,15 @@ public class Engine {
         }
         private Object object;
         private Method method;
-        @Override public Object invoke(Object... args) throws Exception {
-            return method.invoke(object, args);
+        @Override public TLExpression invoke(TLListExpression args) throws Exception {
+            Object[] jargs = new Object[args.size()];
+            for (int i = 0; i < args.size(); i++) {
+                jargs[i] = ((TLAtomExpression) args.get(i)).getValue();
+            }
+            return TLJavaObjectExpression.of(method.invoke(object, jargs));
+        }
+    }
+
         }
     }
 
@@ -105,9 +112,8 @@ public class Engine {
         }
     }
 
-    public TLAtomExpression apply(TLFunction function, List<Object> arguments, TLEnvironment environment) throws Exception {
-        Object value = function.invoke(arguments.toArray(new Object[0]));
-        return TLJavaObjectExpression.of(value);
+    public TLExpression apply(TLFunction function, TLListExpression arguments) throws Exception {
+        return function.invoke(arguments);
     }
 
     public TLExpression evaluate(TLExpression object, TLEnvironment environment) throws Exception {
