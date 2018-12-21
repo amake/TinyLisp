@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 public class Engine {
 
@@ -32,84 +33,59 @@ public class Engine {
     static class TLListExpression extends ArrayList<TLExpression> implements TLExpression {
     }
 
-    abstract static class TLAtomExpression implements TLExpression {
-        abstract public Object getValue();
+    abstract static class TLAtomExpression<T> implements TLExpression {
+        protected T value;
+        public T getValue() {
+            return value;
+        }
+        @Override public String toString() {
+            return Objects.toString(value);
+        }
+        @Override public int hashCode() {
+            return Objects.hashCode(value);
+        }
+        @Override public boolean equals(Object o) {
+            if (this.getClass().equals(o.getClass())) {
+                return Objects.equals(this.value, ((TLAtomExpression<?>) o).value);
+            } else {
+                return false;
+            }
+        }
+
     }
 
-    static class TLSymbolExpression extends TLAtomExpression {
+    static class TLSymbolExpression extends TLAtomExpression<String> {
         static TLSymbolExpression of(String value) {
             TLSymbolExpression symbol = new TLSymbolExpression();
             symbol.value = value;
             return symbol;
         }
-        private String value;
-        @Override public String getValue() {
-            return value;
-        }
-        @Override public String toString() {
-            return value;
-        }
-        @Override public int hashCode() {
-            return value.hashCode();
-        }
-        @Override public boolean equals(Object o) {
-            if (o instanceof TLSymbolExpression) {
-                return value.equals(((TLSymbolExpression) o).value);
-            } else {
-                return false;
-            }
-        }
     }
 
-    static class TLNumberExpression extends TLAtomExpression {
+    static class TLNumberExpression extends TLAtomExpression<Number> {
         static TLNumberExpression of(Number value) {
             TLNumberExpression number = new TLNumberExpression();
             number.value = value;
             return number;
         }
-        private Number value;
-        @Override public Number getValue() {
-            return value;
-        }
-        @Override public String toString() {
-            return value.toString();
-        }
     }
 
-    static class TLArrayExpression extends TLAtomExpression {
+    static class TLArrayExpression extends TLAtomExpression<Object[]> {
         static TLArrayExpression of(Object[] value) {
             TLArrayExpression array = new TLArrayExpression();
             array.value = value;
             return array;
-        }
-        private Object[] value;
-        @Override public Object[] getValue() {
-            return value;
         }
         @Override public String toString() {
             return Arrays.toString(value);
         }
     }
 
-    static class TLJavaObjectExpression extends TLAtomExpression {
+    static class TLJavaObjectExpression extends TLAtomExpression<Object> {
         static TLJavaObjectExpression of(Object value) {
             TLJavaObjectExpression jobj = new TLJavaObjectExpression();
             jobj.value = value;
             return jobj;
-        }
-        private Object value;
-        @Override public Object getValue() {
-            return value;
-        }
-        @Override public int hashCode() {
-            return value.hashCode();
-        }
-        @Override public boolean equals(Object o) {
-            if (o instanceof TLJavaObjectExpression) {
-                return value.equals(((TLJavaObjectExpression) o).value);
-            } else {
-                return false;
-            }
         }
     }
 
