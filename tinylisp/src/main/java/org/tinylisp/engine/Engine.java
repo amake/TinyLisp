@@ -187,7 +187,8 @@ public class Engine {
     }
 
     public Object execute(String program, TLEnvironment environment) throws Exception {
-        TLExpression result = evaluate(parse(program), environment);
-        return ((TLJavaObjectExpression) result).getValue();
+        // Final result of evaluation should be a Java object
+        TLJavaObjectExpression result = (TLJavaObjectExpression) evaluate(parse(program), environment);
+        return result.getValue();
     }
 }
