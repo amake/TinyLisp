@@ -5,7 +5,7 @@ import org.junit.Test;
 
 import java.lang.reflect.Method;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class EngineTest {
 
@@ -66,5 +66,13 @@ public class EngineTest {
         Engine.TLMethodFunction split = Engine.TLMethodFunction.of(null, method);
         env.put(Engine.TLSymbolExpression.of("toString"), split);
         assertEquals("b", engine.execute("(toString 11 16)", env));
+    }
+
+    @Test
+    public void testSet() throws Exception {
+        Object result = engine.execute("(set foo 123)", env);
+        assertNull("Result of `set' is null", result);
+        assertTrue(env.containsKey(Engine.TLSymbolExpression.of("foo")));
+        assertEquals(Engine.TLNumberExpression.of(123), env.get(Engine.TLSymbolExpression.of("foo")));
     }
 }

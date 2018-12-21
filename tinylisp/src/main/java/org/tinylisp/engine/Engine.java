@@ -35,9 +35,6 @@ public class Engine {
         }
     }
 
-        }
-    }
-
     static class TLListExpression extends ArrayList<TLExpression> implements TLExpression {
         public TLListExpression() {
             super();
@@ -124,15 +121,22 @@ public class Engine {
             return object;
         } else if (object instanceof TLListExpression) {
             TLListExpression expression = (TLListExpression) object;
-            // The first item in a list must be a function
-            TLFunction function = (TLFunction) evaluate(expression.get(0), environment);
-            List<Object> args = new ArrayList<>(expression.size() - 1);
-            for (TLExpression exp : expression.subList(1, expression.size())) {
-                // Function arguments must evaluate down to atoms
-                TLAtomExpression atom = (TLAtomExpression) evaluate(exp, environment);
-                args.add(atom.getValue());
+            // The first item in a list must be a symbol
+            TLExpression first = expression.get(0);
+            if (first instanceof TLSymbolExpression && "set".equals(((TLSymbolExpression) first).getValue())) {
+                TLSymbolExpression name = (TLSymbolExpression) expression.get(1);
+                TLExpression value = expression.get(2);
+                environment.put(name, evaluate(value, environment));
+                return TLJavaObjectExpression.of(null);
+            } else {
+                // First item wasn't a special form so it must evaluate to a function
+                TLFunction function = (TLFunction) evaluate(first, environment);
+                TLListExpression args = new TLListExpression();
+                for (TLExpression exp : expression.subList(1, expression.size())) {
+                    args.add(evaluate(exp, environment));
+                }
+                return apply(function, args);
             }
-            return apply(function, args, environment);
         } else {
             throw new IllegalArgumentException("Can't evaluate " + object);
         }
