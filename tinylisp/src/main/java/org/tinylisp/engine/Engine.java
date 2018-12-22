@@ -11,13 +11,17 @@ import java.util.Map;
 public class Engine {
 
     public interface TLExpression {
+        boolean asBoolean();
     }
 
-    public interface TLFunction extends TLExpression {
-        TLExpression invoke(TLListExpression args) throws Exception;
+    public static abstract class TLFunction implements TLExpression {
+        public abstract TLExpression invoke(TLListExpression args) throws Exception;
+        @Override public boolean asBoolean() {
+            return true;
+        }
     }
 
-    public static class TLMethodFunction implements TLFunction {
+    public static class TLMethodFunction extends TLFunction {
         static TLMethodFunction of(Object object, Method method) {
             TLMethodFunction function = new TLMethodFunction();
             function.object = object;
@@ -35,7 +39,7 @@ public class Engine {
         }
     }
 
-    public static class TLLambdaFunction implements TLFunction {
+    public static class TLLambdaFunction extends TLFunction {
         static TLLambdaFunction of(TLListExpression params, TLListExpression body, TLEnvironment env, Engine engine) {
             TLLambdaFunction lambda = new TLLambdaFunction();
             lambda.params = params;
@@ -66,6 +70,9 @@ public class Engine {
         public TLListExpression(List<TLExpression> list) {
             super(list);
         }
+        @Override public boolean asBoolean() {
+            return !isEmpty();
+        }
     }
 
     public abstract static class TLAtomExpression<T> implements TLExpression {
@@ -86,7 +93,9 @@ public class Engine {
                 return false;
             }
         }
-
+        @Override public boolean asBoolean() {
+            return value != null && !Boolean.FALSE.equals(value);
+        }
     }
 
     public static class TLSymbolExpression extends TLAtomExpression<String> {
