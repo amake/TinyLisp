@@ -1,0 +1,15 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+dependencies {
+    implementation project(':tinylisp')
+    testImplementation 'junit:junit:4.12'
+}
+
+mainClassName = 'org.tinylisp.repl.App'
+
+run {
+    standardInput = System.in
+}

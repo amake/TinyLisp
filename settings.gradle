@@ -1,1 +1,1 @@
-include ':tinylisp'
+include ':tinylisp', ':repl'
