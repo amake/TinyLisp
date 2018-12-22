@@ -124,6 +124,21 @@ public class Engine {
         }
     }
 
+    public static TLEnvironment defaultEnvironment() {
+        TLEnvironment environment = new TLEnvironment();
+        environment.put(TLSymbolExpression.of("+"), new TLFunction() {
+            @Override
+            public TLExpression invoke(TLListExpression args) {
+                Integer result = 0;
+                for (TLExpression arg : args) {
+                    result += (Integer) ((TLNumberExpression) arg).getValue();
+                }
+                return TLJavaObjectExpression.of(result);
+            }
+        });
+        return environment;
+    }
+
     public static class TLEnvironment extends HashMap<TLSymbolExpression, TLExpression> {
         public TLEnvironment() {
             super();
