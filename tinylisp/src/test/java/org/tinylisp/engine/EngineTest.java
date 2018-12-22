@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 import static org.junit.Assert.*;
 
@@ -99,5 +100,13 @@ public class EngineTest {
     public void testIf() throws Exception {
         assertEquals(1, engine.execute("(if (< 1 2) 1 2)", env));
         assertEquals(2, engine.execute("(if (< 1 2 0) 1 2)", env));
+    }
+
+    @Test
+    public void testQuote() throws Exception {
+        assertEquals("foo", engine.execute("(quote foo)", env));
+        assertEquals(Arrays.asList("foo", "bar"), engine.execute("(quote (foo bar))", env));
+        assertEquals(Arrays.asList("foo", "bar", Arrays.asList("baz", "buzz")),
+                engine.execute("(quote (foo bar (baz buzz)))", env));
     }
 }

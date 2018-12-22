@@ -199,6 +199,8 @@ public class Engine {
                 TLExpression els = expression.get(3);
                 boolean result = evaluate(condition, environment).asBoolean();
                 return evaluate(result ? then : els, environment);
+            } else if (first instanceof TLSymbolExpression && "quote".equals(((TLSymbolExpression) first).getValue())) {
+                return expression.get(1);
             } else {
                 // First item wasn't a special form so it must evaluate to a function
                 TLFunction function = (TLFunction) evaluate(first, environment);
