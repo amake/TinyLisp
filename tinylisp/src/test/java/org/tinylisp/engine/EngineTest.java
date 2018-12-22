@@ -36,6 +36,18 @@ public class EngineTest {
                 return Engine.TLJavaObjectExpression.of(result);
             }
         });
+        env.put(Engine.TLSymbolExpression.of("<"), new Engine.TLFunction() {
+            @Override public Engine.TLExpression invoke(Engine.TLListExpression args) {
+                int first = (Integer) ((Engine.TLNumberExpression) args.get(0)).getValue();
+                for (int i = 1; i < args.size(); i++) {
+                    int arg = (Integer) ((Engine.TLNumberExpression) args.get(i)).getValue();
+                    if (first > arg) {
+                        return Engine.TLJavaObjectExpression.of(false);
+                    }
+                }
+                return Engine.TLJavaObjectExpression.of(true);
+            }
+        });
     }
 
     @Test
@@ -81,5 +93,11 @@ public class EngineTest {
         assertEquals(2, engine.execute("((lambda (x) (add 1 x)) 1)", env));
         engine.execute("(set increment (lambda (x) (add 1 x)))", env);
         assertEquals(5, engine.execute("(increment 4)", env));
+    }
+
+    @Test
+    public void testIf() throws Exception {
+        assertEquals(1, engine.execute("(if (< 1 2) 1 2)", env));
+        assertEquals(2, engine.execute("(if (< 1 2 0) 1 2)", env));
     }
 }

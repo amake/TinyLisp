@@ -180,6 +180,12 @@ public class Engine {
                 TLListExpression params = (TLListExpression) expression.get(1);
                 TLListExpression body = (TLListExpression) expression.get(2);
                 return TLLambdaFunction.of(params, body, environment, this);
+            } else if (first instanceof TLSymbolExpression && "if".equals(((TLSymbolExpression) first).getValue())) {
+                TLExpression condition = expression.get(1);
+                TLExpression then = expression.get(2);
+                TLExpression els = expression.get(3);
+                boolean result = evaluate(condition, environment).asBoolean();
+                return evaluate(result ? then : els, environment);
             } else {
                 // First item wasn't a special form so it must evaluate to a function
                 TLFunction function = (TLFunction) evaluate(first, environment);
