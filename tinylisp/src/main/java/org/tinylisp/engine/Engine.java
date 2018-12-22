@@ -10,14 +10,14 @@ import java.util.Map;
 
 public class Engine {
 
-    interface TLExpression {
+    public interface TLExpression {
     }
 
-    interface TLFunction extends TLExpression {
+    public interface TLFunction extends TLExpression {
         TLExpression invoke(TLListExpression args) throws Exception;
     }
 
-    static class TLMethodFunction implements TLFunction {
+    public static class TLMethodFunction implements TLFunction {
         static TLMethodFunction of(Object object, Method method) {
             TLMethodFunction function = new TLMethodFunction();
             function.object = object;
@@ -35,7 +35,7 @@ public class Engine {
         }
     }
 
-    static class TLLambdaFunction implements TLFunction {
+    public static class TLLambdaFunction implements TLFunction {
         static TLLambdaFunction of(TLListExpression params, TLListExpression body, TLEnvironment env, Engine engine) {
             TLLambdaFunction lambda = new TLLambdaFunction();
             lambda.params = params;
@@ -59,7 +59,7 @@ public class Engine {
         }
     }
 
-    static class TLListExpression extends ArrayList<TLExpression> implements TLExpression {
+    public static class TLListExpression extends ArrayList<TLExpression> implements TLExpression {
         public TLListExpression() {
             super();
         }
@@ -68,7 +68,7 @@ public class Engine {
         }
     }
 
-    abstract static class TLAtomExpression<T> implements TLExpression {
+    public abstract static class TLAtomExpression<T> implements TLExpression {
         protected T value;
         public T getValue() {
             return value;
@@ -89,7 +89,7 @@ public class Engine {
 
     }
 
-    static class TLSymbolExpression extends TLAtomExpression<String> {
+    public static class TLSymbolExpression extends TLAtomExpression<String> {
         static TLSymbolExpression of(String value) {
             TLSymbolExpression symbol = new TLSymbolExpression();
             symbol.value = value;
@@ -97,7 +97,7 @@ public class Engine {
         }
     }
 
-    static class TLNumberExpression extends TLAtomExpression<Number> {
+    public static class TLNumberExpression extends TLAtomExpression<Number> {
         static TLNumberExpression of(Number value) {
             TLNumberExpression number = new TLNumberExpression();
             number.value = value;
@@ -105,7 +105,7 @@ public class Engine {
         }
     }
 
-    static class TLArrayExpression extends TLAtomExpression<Object[]> {
+    public static class TLArrayExpression extends TLAtomExpression<Object[]> {
         static TLArrayExpression of(Object[] value) {
             TLArrayExpression array = new TLArrayExpression();
             array.value = value;
@@ -116,7 +116,7 @@ public class Engine {
         }
     }
 
-    static class TLJavaObjectExpression extends TLAtomExpression<Object> {
+    public static class TLJavaObjectExpression extends TLAtomExpression<Object> {
         static TLJavaObjectExpression of(Object value) {
             TLJavaObjectExpression jobj = new TLJavaObjectExpression();
             jobj.value = value;
@@ -124,7 +124,7 @@ public class Engine {
         }
     }
 
-    static class TLEnvironment extends HashMap<TLSymbolExpression, TLExpression> {
+    public static class TLEnvironment extends HashMap<TLSymbolExpression, TLExpression> {
         public TLEnvironment() {
             super();
         }
