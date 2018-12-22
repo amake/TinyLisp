@@ -73,6 +73,19 @@ public class Engine {
         @Override public boolean asBoolean() {
             return !isEmpty();
         }
+        public List<Object> getValues() {
+            List<Object> result = new ArrayList<>();
+            for (TLExpression expression : this) {
+                if (expression instanceof TLAtomExpression<?>) {
+                    result.add(((TLAtomExpression) expression).getValue());
+                } else if (expression instanceof TLListExpression) {
+                    result.add(((TLListExpression) expression).getValues());
+                } else {
+                    result.add(expression);
+                }
+            }
+            return result;
+        }
     }
 
     public abstract static class TLAtomExpression<T> implements TLExpression {
@@ -255,8 +268,14 @@ public class Engine {
     }
 
     public Object execute(String program, TLEnvironment environment) throws Exception {
-        // Final result of evaluation should be a Java object
-        TLAtomExpression<?> result = (TLAtomExpression<?>) evaluate(parse(program), environment);
-        return result.getValue();
+        // Try to unpack result into Java object; return wrapped representation otherwise
+        TLExpression result = evaluate(parse(program), environment);
+        if (result instanceof TLAtomExpression<?>) {
+            return ((TLAtomExpression) result).getValue();
+        } else if (result instanceof TLListExpression) {
+            return ((TLListExpression) result).getValues();
+        } else {
+            return result;
+        }
     }
 }
