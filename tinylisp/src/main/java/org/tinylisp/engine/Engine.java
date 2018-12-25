@@ -25,7 +25,7 @@ public class Engine {
     }
 
     public static class TLMethodFunction extends TLFunction {
-        static TLMethodFunction of(Object object, Method method) {
+        public static TLMethodFunction of(Object object, Method method) {
             TLMethodFunction function = new TLMethodFunction();
             function.object = object;
             function.method = method;
@@ -43,7 +43,7 @@ public class Engine {
     }
 
     public static class TLLambdaFunction extends TLFunction {
-        static TLLambdaFunction of(TLListExpression params, TLListExpression body, TLEnvironment env, Engine engine) {
+        public static TLLambdaFunction of(TLListExpression params, TLListExpression body, TLEnvironment env, Engine engine) {
             TLLambdaFunction lambda = new TLLambdaFunction();
             lambda.params = params;
             lambda.body = body;
@@ -110,7 +110,7 @@ public class Engine {
     }
 
     public static class TLSymbolExpression extends TLAtomExpression<String> {
-        static TLSymbolExpression of(String value) {
+        public static TLSymbolExpression of(String value) {
             TLSymbolExpression symbol = new TLSymbolExpression();
             symbol.value = value;
             return symbol;
@@ -118,7 +118,7 @@ public class Engine {
     }
 
     public static class TLNumberExpression extends TLAtomExpression<Number> {
-        static TLNumberExpression of(Number value) {
+        public static TLNumberExpression of(Number value) {
             TLNumberExpression number = new TLNumberExpression();
             number.value = value;
             return number;
@@ -126,7 +126,7 @@ public class Engine {
     }
 
     public static class TLArrayExpression extends TLAtomExpression<Object[]> {
-        static TLArrayExpression of(Object[] value) {
+        public static TLArrayExpression of(Object[] value) {
             TLArrayExpression array = new TLArrayExpression();
             array.value = value;
             return array;
@@ -137,7 +137,7 @@ public class Engine {
     }
 
     public static class TLJavaObjectExpression extends TLAtomExpression<Object> {
-        static TLJavaObjectExpression of(Object value) {
+        public static TLJavaObjectExpression of(Object value) {
             TLJavaObjectExpression jobj = new TLJavaObjectExpression();
             jobj.value = value;
             return jobj;
