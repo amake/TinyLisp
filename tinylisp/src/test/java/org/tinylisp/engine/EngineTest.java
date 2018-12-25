@@ -3,6 +3,7 @@ package org.tinylisp.engine;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
@@ -30,8 +31,9 @@ public class EngineTest {
             @Override public Engine.TLExpression invoke(Engine.TLListExpression args) {
                 int result = 0;
                 for (Engine.TLExpression arg : args) {
-                    for (Object n : (Object[]) arg.getValue()) {
-                        result += (Integer) n;
+                    Object array = arg.getValue();
+                    for (int i = 0; i < Array.getLength(array); i++) {
+                        result += Array.getInt(array, i);
                     }
                 }
                 return Engine.expressionOf(result);
@@ -39,9 +41,9 @@ public class EngineTest {
         });
         env.put(Engine.TLSymbolExpression.of("<"), new Engine.TLFunction() {
             @Override public Engine.TLExpression invoke(Engine.TLListExpression args) {
-                int first = (Integer) ((Engine.TLNumberExpression) args.get(0)).getValue();
+                int first = (Integer) args.get(0).getValue();
                 for (int i = 1; i < args.size(); i++) {
-                    int arg = (Integer) ((Engine.TLNumberExpression) args.get(i)).getValue();
+                    int arg = (Integer) args.get(i).getValue();
                     if (first > arg) {
                         return Engine.expressionOf(false);
                     }
@@ -71,6 +73,11 @@ public class EngineTest {
     public void testArrays() throws Exception {
         assertEquals(15, engine.execute("(addArray [1 2 3 4 5])", env).getValue());
         assertEquals(30, engine.execute("(addArray [1 2 3 4 5] [1 2 3 4 5])", env).getValue());
+        {
+            Object result = engine.execute("[1 2 3 4 5]", env).getValue();
+            assertTrue(result instanceof int[]);
+            assertArrayEquals((int[]) result, new int[] {1, 2, 3, 4, 5});
+        }
     }
 
     @Test

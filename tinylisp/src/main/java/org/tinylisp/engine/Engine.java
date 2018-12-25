@@ -148,6 +148,40 @@ public class Engine {
             array.value = value;
             return array;
         }
+        public static TLArrayExpression from(List<Object> values) {
+            Class<?> arrayClass = getClass(values);
+            Object value;
+            if (Integer.class.equals(arrayClass)) {
+                int[] intArray = new int[values.size()];
+                for (int i = 0; i < values.size(); i++) {
+                    intArray[i] = (int) values.get(i);
+                }
+                value = intArray;
+            } else if (Double.class.equals(arrayClass)) {
+                double[] doubleArray = new double[values.size()];
+                for (int i = 0; i < values.size(); i++) {
+                    doubleArray[i] = (double) values.get(i);
+                }
+                value = doubleArray;
+            } else {
+                value = values.toArray();
+            }
+            TLArrayExpression array = new TLArrayExpression();
+            array.value = value;
+            return array;
+        }
+        private static Class<?> getClass(List<Object> values) {
+            if (values.isEmpty()) {
+                return Object.class;
+            }
+            Class<?> result = values.get(0).getClass();
+            for (Object value : values) {
+                if (!value.getClass().equals(result)) {
+                    return Object.class;
+                }
+            }
+            return result;
+        }
         @Override public String toString() {
             if (value instanceof int[]) {
                 return Arrays.toString((int[]) value);
@@ -262,7 +296,7 @@ public class Engine {
                 values.add(atom.getValue());
             }
             tokens.remove(0);
-            return TLArrayExpression.of(values.toArray());
+            return TLArrayExpression.from(values);
         } else {
             return atomize(token);
         }
