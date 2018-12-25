@@ -153,7 +153,7 @@ public class Engine {
                 for (TLExpression arg : args) {
                     result += (Integer) arg.getValue();
                 }
-                return TLJavaObjectExpression.of(result);
+                return TLNumberExpression.of(result);
             }
         });
         return environment;
