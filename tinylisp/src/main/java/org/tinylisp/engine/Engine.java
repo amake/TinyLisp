@@ -234,7 +234,11 @@ public class Engine {
     public TLExpression evaluate(TLExpression object, TLEnvironment environment) throws Exception {
         if (object instanceof TLSymbolExpression) {
             TLSymbolExpression symbol = (TLSymbolExpression) object;
-            return environment.get(symbol);
+            TLExpression result = environment.get(symbol);
+            if (result == null) {
+                throw new RuntimeException("Symbol undefined: " + symbol);
+            }
+            return result;
         } else if (object instanceof TLAtomExpression) {
             return object;
         } else if (object instanceof TLListExpression) {
