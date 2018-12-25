@@ -30,7 +30,7 @@ public class EngineTest {
             @Override public Engine.TLExpression invoke(Engine.TLListExpression args) {
                 int result = 0;
                 for (Engine.TLExpression arg : args) {
-                    for (Object n : ((Engine.TLArrayExpression) arg).getValue()) {
+                    for (Object n : (Object[]) arg.getValue()) {
                         result += (Integer) n;
                     }
                 }

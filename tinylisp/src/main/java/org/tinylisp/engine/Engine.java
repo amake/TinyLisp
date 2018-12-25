@@ -125,14 +125,25 @@ public class Engine {
         }
     }
 
-    public static class TLArrayExpression extends TLAtomExpression<Object[]> {
-        public static TLArrayExpression of(Object[] value) {
+    public static class TLArrayExpression extends TLAtomExpression<Object> {
+        public static TLArrayExpression of(Object value) {
+            if (value == null || !value.getClass().isArray()) {
+                throw new IllegalArgumentException("Value is not an array: " + value);
+            }
             TLArrayExpression array = new TLArrayExpression();
             array.value = value;
             return array;
         }
         @Override public String toString() {
-            return Arrays.toString(value);
+            if (value instanceof int[]) {
+                return Arrays.toString((int[]) value);
+            } else if (value instanceof float[]) {
+                return Arrays.toString((float[]) value);
+            } else if (value instanceof double[]) {
+                return Arrays.toString((double[]) value);
+            } else {
+                return Arrays.toString((Object[]) value);
+            }
         }
     }
 
