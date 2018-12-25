@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 import java.util.Map;
 
 public class Engine {
@@ -94,14 +93,15 @@ public class Engine {
             return value;
         }
         @Override public String toString() {
-            return Objects.toString(value);
+            return String.valueOf(value);
         }
         @Override public int hashCode() {
-            return Objects.hashCode(value);
+            return value != null ? value.hashCode() : 0;
         }
         @Override public boolean equals(Object o) {
-            if (this.getClass().equals(o.getClass())) {
-                return Objects.equals(this.value, ((TLAtomExpression<?>) o).value);
+            if (o != null && this.getClass().equals(o.getClass())) {
+                Object oVal = ((TLAtomExpression<?>) o).value;
+                return value == oVal || (value != null && value.equals(oVal));
             } else {
                 return false;
             }
