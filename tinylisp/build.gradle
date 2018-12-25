@@ -11,3 +11,20 @@ version '0.1-SNAPSHOT'
 
 sourceCompatibility = "7"
 targetCompatibility = "7"
+
+ext {
+    findJavaHome = { version ->
+        try {
+            "/usr/libexec/java_home -f -v $version".execute().getText().trim()
+        } catch (ignored) {
+            null
+        }
+    }
+    java7home = System.env.getOrDefault('JAVA7_HOME', findJavaHome("1.7"))
+}
+
+tasks.withType(JavaCompile) {
+    if (java7home) {
+        options.bootstrapClasspath = files("$java7home/jre/lib/rt.jar")
+    }
+}
