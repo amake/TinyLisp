@@ -10,11 +10,15 @@ import java.util.Map;
 public class Engine {
 
     public interface TLExpression {
+        Object getValue();
         boolean asBoolean();
     }
 
     public static abstract class TLFunction implements TLExpression {
         public abstract TLExpression invoke(TLListExpression args) throws Exception;
+        @Override public Object getValue() {
+            return this;
+        }
         @Override public boolean asBoolean() {
             return true;
         }
@@ -32,7 +36,7 @@ public class Engine {
         @Override public TLExpression invoke(TLListExpression args) throws Exception {
             Object[] jargs = new Object[args.size()];
             for (int i = 0; i < args.size(); i++) {
-                jargs[i] = ((TLAtomExpression) args.get(i)).getValue();
+                jargs[i] = args.get(i).getValue();
             }
             return TLJavaObjectExpression.of(method.invoke(object, jargs));
         }
@@ -72,16 +76,10 @@ public class Engine {
         @Override public boolean asBoolean() {
             return !isEmpty();
         }
-        public List<Object> getValues() {
+        public List<Object> getValue() {
             List<Object> result = new ArrayList<>();
             for (TLExpression expression : this) {
-                if (expression instanceof TLAtomExpression<?>) {
-                    result.add(((TLAtomExpression) expression).getValue());
-                } else if (expression instanceof TLListExpression) {
-                    result.add(((TLListExpression) expression).getValues());
-                } else {
-                    result.add(expression);
-                }
+                result.add(expression.getValue());
             }
             return result;
         }
@@ -153,7 +151,7 @@ public class Engine {
             public TLExpression invoke(TLListExpression args) {
                 Integer result = 0;
                 for (TLExpression arg : args) {
-                    result += (Integer) ((TLNumberExpression) arg).getValue();
+                    result += (Integer) arg.getValue();
                 }
                 return TLJavaObjectExpression.of(result);
             }
@@ -269,15 +267,7 @@ public class Engine {
         return filtered;
     }
 
-    public Object execute(String program, TLEnvironment environment) throws Exception {
-        // Try to unpack result into Java object; return wrapped representation otherwise
-        TLExpression result = evaluate(parse(program), environment);
-        if (result instanceof TLAtomExpression<?>) {
-            return ((TLAtomExpression) result).getValue();
-        } else if (result instanceof TLListExpression) {
-            return ((TLListExpression) result).getValues();
-        } else {
-            return result;
-        }
+    public TLExpression execute(String program, TLEnvironment environment) throws Exception {
+        return evaluate(parse(program), environment);
     }
 }

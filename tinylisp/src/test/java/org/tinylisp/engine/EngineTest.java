@@ -21,7 +21,7 @@ public class EngineTest {
             @Override public Engine.TLExpression invoke(Engine.TLListExpression args) {
                 int result = 0;
                 for (Engine.TLExpression arg : args) {
-                    result += (Integer) ((Engine.TLAtomExpression) arg).getValue();
+                    result += (Integer) arg.getValue();
                 }
                 return Engine.TLJavaObjectExpression.of(result);
             }
@@ -64,13 +64,13 @@ public class EngineTest {
 
     @Test
     public void testExecute() throws Exception {
-        assertEquals(10, engine.execute("(add 1 2 3 4)", env));
+        assertEquals(10, engine.execute("(add 1 2 3 4)", env).getValue());
     }
 
     @Test
     public void testArrays() throws Exception {
-        assertEquals(15, engine.execute("(addArray [1 2 3 4 5])", env));
-        assertEquals(30, engine.execute("(addArray [1 2 3 4 5] [1 2 3 4 5])", env));
+        assertEquals(15, engine.execute("(addArray [1 2 3 4 5])", env).getValue());
+        assertEquals(30, engine.execute("(addArray [1 2 3 4 5] [1 2 3 4 5])", env).getValue());
     }
 
     @Test
@@ -78,35 +78,35 @@ public class EngineTest {
         Method method = Integer.class.getMethod("toString", int.class, int.class);
         Engine.TLMethodFunction split = Engine.TLMethodFunction.of(null, method);
         env.put(Engine.TLSymbolExpression.of("toString"), split);
-        assertEquals("b", engine.execute("(toString 11 16)", env));
+        assertEquals("b", engine.execute("(toString 11 16)", env).getValue());
     }
 
     @Test
     public void testSet() throws Exception {
-        Object result = engine.execute("(set foo 123)", env);
-        assertNull("Result of `set' is null", result);
+        Engine.TLExpression result = engine.execute("(set foo 123)", env);
+        assertNull("Result of `set' is null", result.getValue());
         assertTrue(env.containsKey(Engine.TLSymbolExpression.of("foo")));
         assertEquals(Engine.TLNumberExpression.of(123), env.get(Engine.TLSymbolExpression.of("foo")));
     }
 
     @Test
     public void testLambda() throws Exception {
-        assertEquals(2, engine.execute("((lambda (x) (add 1 x)) 1)", env));
+        assertEquals(2, engine.execute("((lambda (x) (add 1 x)) 1)", env).getValue());
         engine.execute("(set increment (lambda (x) (add 1 x)))", env);
-        assertEquals(5, engine.execute("(increment 4)", env));
+        assertEquals(5, engine.execute("(increment 4)", env).getValue());
     }
 
     @Test
     public void testIf() throws Exception {
-        assertEquals(1, engine.execute("(if (< 1 2) 1 2)", env));
-        assertEquals(2, engine.execute("(if (< 1 2 0) 1 2)", env));
+        assertEquals(1, engine.execute("(if (< 1 2) 1 2)", env).getValue());
+        assertEquals(2, engine.execute("(if (< 1 2 0) 1 2)", env).getValue());
     }
 
     @Test
     public void testQuote() throws Exception {
-        assertEquals("foo", engine.execute("(quote foo)", env));
-        assertEquals(Arrays.asList("foo", "bar"), engine.execute("(quote (foo bar))", env));
+        assertEquals("foo", engine.execute("(quote foo)", env).getValue());
+        assertEquals(Arrays.asList("foo", "bar"), engine.execute("(quote (foo bar))", env).getValue());
         assertEquals(Arrays.asList("foo", "bar", Arrays.asList("baz", "buzz")),
-                engine.execute("(quote (foo bar (baz buzz)))", env));
+                engine.execute("(quote (foo bar (baz buzz)))", env).getValue());
     }
 }
