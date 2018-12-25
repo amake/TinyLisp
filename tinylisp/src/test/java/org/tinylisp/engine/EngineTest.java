@@ -78,6 +78,11 @@ public class EngineTest {
             assertTrue(result instanceof int[]);
             assertArrayEquals((int[]) result, new int[] {1, 2, 3, 4, 5});
         }
+        {
+            Object result = engine.execute("[1.1 2.2 3.3 4.4 5.5]", env).getValue();
+            assertTrue(result instanceof double[]);
+            assertArrayEquals(new double[] {1.1, 2.2, 3.3, 4.4, 5.5}, (double[]) result, 0);
+        }
     }
 
     @Test

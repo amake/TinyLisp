@@ -306,8 +306,14 @@ public class Engine {
         try {
             return TLNumberExpression.of(Integer.parseInt(token));
         } catch (NumberFormatException ex) {
-            return TLSymbolExpression.of(token);
+            // Not an int
         }
+        try {
+            return TLNumberExpression.of(Double.parseDouble(token));
+        } catch (NumberFormatException ex) {
+            // Not a double
+        }
+        return TLSymbolExpression.of(token);
     }
 
     public ArrayList<String> tokenize(String input) {
