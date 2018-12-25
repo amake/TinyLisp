@@ -2,6 +2,7 @@ package org.tinylisp.app;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -90,11 +91,15 @@ public class MainActivity extends AppCompatActivity implements TextView.OnEditor
     }
 
     private void doCompletion() {
-        String input = mInput.getText().toString();
-        String completion = mRepl.complete(input);
+        int caret = mInput.getSelectionEnd();
+        Editable input = mInput.getText();
+        String before = input.subSequence(0, caret).toString();
+        String after = input.subSequence(caret, input.length()).toString();
+        String completion = mRepl.complete(before);
         if (completion != null) {
             mInput.setText(completion);
-            mInput.setSelection(mInput.length());
+            mInput.append(after);
+            mInput.setSelection(completion.length());
             mInput.requestFocus();
         }
     }
