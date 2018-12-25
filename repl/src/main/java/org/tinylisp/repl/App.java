@@ -28,7 +28,8 @@ public class App {
             String input = prompt();
             if (input != null) {
                 try {
-                    Object result = mEngine.execute(input, mEnv);
+                    Engine.TLExpression result = mEngine.execute(input, mEnv);
+                    mEnv.put(Engine.TLSymbolExpression.of("_"), result);
                     mOut.println(result == null ? "" : result);
                 } catch (Exception ex) {
                     mOut.println(ex);
