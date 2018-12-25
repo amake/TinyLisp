@@ -111,10 +111,12 @@ public class TinyLispRepl {
             repr = object.toString();
         }
         mOutput.print(repr);
+        mOutput.print("\n");
     }
 
     private void printException(Exception ex) {
         mOutput.print(findInterestingCause(ex).toString());
+        mOutput.print("\n");
         ex.printStackTrace();
     }
 
