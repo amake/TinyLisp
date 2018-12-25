@@ -9,6 +9,20 @@ import java.util.Map;
 
 public class Engine {
 
+    public static TLAtomExpression<?> expressionOf(Object value) {
+        if (value == null) {
+            return TLJavaObjectExpression.of(null);
+        } else if (value instanceof String) {
+            return TLSymbolExpression.of((String) value);
+        } else if (value instanceof Number) {
+            return TLNumberExpression.of((Number) value);
+        } else if (value.getClass().isArray()) {
+            return TLArrayExpression.of(value);
+        } else {
+            return TLJavaObjectExpression.of(value);
+        }
+    }
+
     public interface TLExpression {
         Object getValue();
         boolean asBoolean();
@@ -38,7 +52,7 @@ public class Engine {
             for (int i = 0; i < args.size(); i++) {
                 jargs[i] = args.get(i).getValue();
             }
-            return TLJavaObjectExpression.of(method.invoke(object, jargs));
+            return expressionOf(method.invoke(object, jargs));
         }
     }
 
@@ -164,7 +178,7 @@ public class Engine {
                 for (TLExpression arg : args) {
                     result += (Integer) arg.getValue();
                 }
-                return TLNumberExpression.of(result);
+                return expressionOf(result);
             }
         });
         return environment;

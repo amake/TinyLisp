@@ -23,7 +23,7 @@ public class EngineTest {
                 for (Engine.TLExpression arg : args) {
                     result += (Integer) arg.getValue();
                 }
-                return Engine.TLJavaObjectExpression.of(result);
+                return Engine.expressionOf(result);
             }
         });
         env.put(Engine.TLSymbolExpression.of("addArray"), new Engine.TLFunction() {
@@ -34,7 +34,7 @@ public class EngineTest {
                         result += (Integer) n;
                     }
                 }
-                return Engine.TLJavaObjectExpression.of(result);
+                return Engine.expressionOf(result);
             }
         });
         env.put(Engine.TLSymbolExpression.of("<"), new Engine.TLFunction() {
@@ -43,10 +43,10 @@ public class EngineTest {
                 for (int i = 1; i < args.size(); i++) {
                     int arg = (Integer) ((Engine.TLNumberExpression) args.get(i)).getValue();
                     if (first > arg) {
-                        return Engine.TLJavaObjectExpression.of(false);
+                        return Engine.expressionOf(false);
                     }
                 }
-                return Engine.TLJavaObjectExpression.of(true);
+                return Engine.expressionOf(true);
             }
         });
     }
@@ -59,7 +59,7 @@ public class EngineTest {
         exp.add(Engine.TLNumberExpression.of(2));
         exp.add(Engine.TLNumberExpression.of(3));
 
-        assertEquals(Engine.TLJavaObjectExpression.of(6), engine.evaluate(exp, env));
+        assertEquals(Engine.expressionOf(6), engine.evaluate(exp, env));
     }
 
     @Test
@@ -86,7 +86,7 @@ public class EngineTest {
         Engine.TLExpression result = engine.execute("(set foo 123)", env);
         assertNull("Result of `set' is null", result.getValue());
         assertTrue(env.containsKey(Engine.TLSymbolExpression.of("foo")));
-        assertEquals(Engine.TLNumberExpression.of(123), env.get(Engine.TLSymbolExpression.of("foo")));
+        assertEquals(Engine.expressionOf(123), env.get(Engine.TLSymbolExpression.of("foo")));
     }
 
     @Test
