@@ -3,6 +3,7 @@ package org.tinylisp.app;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -15,7 +16,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements TextView.OnEditorActionListener, TinyLispRepl.PrintComponent, View.OnClickListener, View.OnKeyListener {
+public class MainActivity extends AppCompatActivity implements TextView.OnEditorActionListener, TinyLispRepl.PrintComponent, View.OnClickListener, View.OnKeyListener, TextWatcher {
 
     private static final String TAG = "Main";
 
@@ -37,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements TextView.OnEditor
         mInput = findViewById(R.id.input);
         mInput.setOnEditorActionListener(this);
         mInput.setOnKeyListener(this);
+        mInput.addTextChangedListener(this);
 
         mTabButton = findViewById(R.id.tab_button);
         mTabButton.setOnClickListener(this);
@@ -164,5 +166,46 @@ public class MainActivity extends AppCompatActivity implements TextView.OnEditor
             return true;
         }
         return false;
+    }
+
+    /* TextWatcher */
+
+    @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        Log.d(TAG, "Input: beforeTextChanged; s=" + s + "; start=" + start + ", count=" + count + ", after=" + after);
+    }
+    @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+        Log.d(TAG, "Input: onTextChanged; s=" + s + "; start=" + start + ", before=" + before + ", count=" + count);
+        if (before == 0 && count == 1) {
+            // Insert
+            String changed = s.subSequence(start, start + count).toString();
+            final String insert;
+            if ("(".equals(changed)) {
+                insert = ")";
+            } else if ("[".equals(changed)) {
+                insert = "]";
+            } else {
+                insert = null;
+            }
+            if (insert != null) {
+                mInput.post(new Runnable() {
+                    @Override public void run() {
+                        insertAfterCaret(insert);
+                    }
+                });
+            }
+        }
+    }
+    @Override public void afterTextChanged(Editable s) {
+        Log.d(TAG, "Input: afterTextChanged; s=" + s);
+    }
+
+    private void insertAfterCaret(String string) {
+        int caret = mInput.getSelectionEnd();
+        Editable content = mInput.getText();
+        String before = content.subSequence(0, caret).toString();
+        String after = content.subSequence(caret, content.length()).toString();
+        String result = before + string + after;
+        mInput.setText(result);
+        mInput.setSelection(before.length());
     }
 }
