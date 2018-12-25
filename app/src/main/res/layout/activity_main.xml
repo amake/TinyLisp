@@ -22,7 +22,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@android:color/white"
-                android:padding="8dp"/>
+                android:padding="8dp"
+                app:fontFamily="monospace"/>
     </ScrollView>
 
     <Button
@@ -52,7 +53,8 @@
             app:layout_constraintStart_toEndOf="@id/tab_button"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:fontFamily="monospace">
         <requestFocus/>
     </EditText>
 </android.support.constraint.ConstraintLayout>
