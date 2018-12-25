@@ -6,6 +6,7 @@ import org.junit.Test;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collections;
 
 import static org.junit.Assert.*;
 
@@ -49,6 +50,15 @@ public class EngineTest {
                     }
                 }
                 return Engine.expressionOf(true);
+            }
+        });
+        env.put(Engine.TLSymbolExpression.of("concat"), new Engine.TLFunction() {
+            @Override public Engine.TLExpression invoke(Engine.TLListExpression args) {
+                StringBuilder builder = new StringBuilder();
+                for (Engine.TLExpression arg : args) {
+                    builder.append((String) arg.getValue());
+                }
+                return Engine.expressionOf(builder.toString());
             }
         });
     }
@@ -120,5 +130,28 @@ public class EngineTest {
         assertEquals(Arrays.asList("foo", "bar"), engine.execute("(quote (foo bar))", env).getValue());
         assertEquals(Arrays.asList("foo", "bar", Arrays.asList("baz", "buzz")),
                 engine.execute("(quote (foo bar (baz buzz)))", env).getValue());
+    }
+
+    @Test
+    public void testTokenize() {
+        assertEquals(Collections.singletonList("foo"), engine.tokenize("foo"));
+        assertEquals(Arrays.asList("(", "a", "b", "c", ")"), engine.tokenize("(a b c)"));
+        assertEquals(Arrays.asList("(", "a", "b", "c", ")"), engine.tokenize("( a b c ) "));
+        assertEquals(Arrays.asList("(", "a", "b", "[", "c", "]", ")"), engine.tokenize("(a b [c])"));
+        assertEquals(Arrays.asList("(", "a", "b", "\"", "foo bar", "\"", ")"),
+                engine.tokenize("(a b \"foo bar\")"));
+    }
+
+    @Test
+    public void testString() throws Exception {
+        assertEquals("foo", engine.execute("\"foo\"", env).getValue());
+        try {
+            engine.execute("foo", env);
+            fail("String without quotes is a symbol; evaluating an undefined symbol is an error");
+        } catch (Exception ex) {
+            // Should fail
+        }
+        assertEquals("foobar baz",
+                engine.execute("(concat \"foo\" \"bar baz\")", env).getValue());
     }
 }

@@ -1,11 +1,7 @@
 package org.tinylisp.engine;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Engine {
 
@@ -301,6 +297,10 @@ public class Engine {
             }
             tokens.remove(0);
             return TLArrayExpression.from(values);
+        } else if ("\"".equals(token)) {
+            String string = tokens.remove(0);
+            tokens.remove(0);
+            return TLJavaObjectExpression.of(string);
         } else {
             return atomize(token);
         }
@@ -321,19 +321,37 @@ public class Engine {
     }
 
     public ArrayList<String> tokenize(String input) {
-        String[] tokens = input.replace("(", " ( ")
-            .replace(")", " ) ")
-            .replace("[", " [ ")
-            .replace("]", " ] ")
-            .trim()
-            .split("\\s+");
-        ArrayList<String> filtered = new ArrayList<>();
-        for (String token : tokens) {
-            if (!token.isEmpty()) {
-                filtered.add(token);
+        ArrayList<String> tokens = new ArrayList<>();
+        boolean inString = false;
+        int start = 0;
+        for (int i = 0; i < input.length(); i++) {
+            char c = input.charAt(i);
+            if (inString) {
+                if (c == '"') {
+                    inString = false;
+                    tokens.add(input.substring(start, i));
+                    start = i + 1;
+                    tokens.add(String.valueOf(c));
+                }
+            } else {
+                if (c == '(' || c == ')' || c == '[' || c == ']' || c == ' ' || c == '\t') {
+                    tokens.add(input.substring(start, i));
+                    start = i + 1;
+                    tokens.add(String.valueOf(c));
+                } else if (c == '"') {
+                    inString = true;
+                    tokens.add(String.valueOf(c));
+                    start = i + 1;
+                }
             }
         }
-        return filtered;
+        tokens.add(input.substring(start));
+        for (Iterator<String> it = tokens.iterator(); it.hasNext();) {
+            if (it.next().trim().isEmpty()) {
+                it.remove();
+            }
+        }
+        return tokens;
     }
 
     public TLExpression execute(String program, TLEnvironment environment) throws Exception {
