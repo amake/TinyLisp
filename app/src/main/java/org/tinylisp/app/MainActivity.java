@@ -159,7 +159,10 @@ public class MainActivity extends AppCompatActivity implements TextView.OnEditor
             index = history.size();
         }
         index = Math.min(index + 1, history.size());
-        if (index >= 0 && index < history.size()) {
+        if (index == history.size()) {
+            mInput.setText(null);
+            return true;
+        } else if (index >= 0 && index < history.size()) {
             String replacement = history.get(index);
             mInput.setText(replacement);
             mInput.setSelection(mInput.length());
