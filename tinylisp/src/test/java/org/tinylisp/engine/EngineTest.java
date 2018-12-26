@@ -154,4 +154,15 @@ public class EngineTest {
         assertEquals("foobar baz",
                 engine.execute("(concat \"foo\" \"bar baz\")", env).getValue());
     }
+
+    @Test
+    public void testFunctionString() throws Exception {
+        assertEquals("TLFunction()", engine.execute("(lambda () ())", env).toString());
+        assertEquals("TLFunction(x,y,z)", engine.execute("(lambda (x y z) ())", env).toString());
+        Method method = Integer.class.getMethod("toString", int.class, int.class);
+        Engine.TLMethodFunction toString = Engine.TLMethodFunction.of(null, method);
+        env.put(Engine.TLSymbolExpression.of("toString"), toString);
+        assertEquals("TLFunction(int,int)", toString.toString());
+        assertEquals("TLFunction(int,int)", engine.execute("toString", env).toString());
+    }
 }

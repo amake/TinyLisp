@@ -26,11 +26,25 @@ public class Engine {
 
     public static abstract class TLFunction implements TLExpression {
         public abstract TLExpression invoke(TLListExpression args) throws Exception;
+        protected List<?> getParameterHelpNames() {
+            return Collections.emptyList();
+        }
         @Override public Object getValue() {
             return this;
         }
         @Override public boolean asBoolean() {
             return true;
+        }
+        @Override public String toString() {
+            StringBuilder builder = new StringBuilder("TLFunction(");
+            for (Object param : getParameterHelpNames()) {
+                builder.append(param).append(",");
+            }
+            if (builder.charAt(builder.length() - 1) == ',') {
+                builder.deleteCharAt(builder.length() - 1);
+            }
+            builder.append(')');
+            return builder.toString();
         }
     }
 
@@ -49,6 +63,13 @@ public class Engine {
                 jargs[i] = args.get(i).getValue();
             }
             return expressionOf(method.invoke(object, jargs));
+        }
+        @Override protected List<?> getParameterHelpNames() {
+            List<Object> names = new ArrayList<>();
+            for (Class<?> param : method.getParameterTypes()) {
+                names.add(param.getSimpleName());
+            }
+            return names;
         }
     }
 
@@ -73,6 +94,9 @@ public class Engine {
                 env.put(param, arg);
             }
             return engine.evaluate(body, env);
+        }
+        @Override protected List<?> getParameterHelpNames() {
+            return params;
         }
     }
 
