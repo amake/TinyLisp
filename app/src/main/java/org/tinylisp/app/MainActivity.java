@@ -170,8 +170,21 @@ public class MainActivity extends AppCompatActivity implements TextView.OnEditor
 
     /* TextWatcher */
 
-    @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+    @Override public void beforeTextChanged(CharSequence s, final int start, int count, int after) {
         Log.d(TAG, "Input: beforeTextChanged; s=" + s + "; start=" + start + ", count=" + count + ", after=" + after);
+         if (after == 0 && count == 1 && start + count < s.length()) {
+            // Delete
+            String deleted = s.subSequence(start, start + count).toString();
+            final String next = s.subSequence(start + count, start + count + 1).toString();
+            if ("(".equals(deleted) && ")".equals(next)
+                || "[".equals(deleted) && "]".equals(next)) {
+                mInput.post(new Runnable() {
+                    @Override public void run() {
+                        deleteAtIndex(next, start);
+                    }
+                });
+            }
+        }
     }
     @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
         Log.d(TAG, "Input: onTextChanged; s=" + s + "; start=" + start + ", before=" + before + ", count=" + count);
@@ -207,5 +220,15 @@ public class MainActivity extends AppCompatActivity implements TextView.OnEditor
         String result = before + string + after;
         mInput.setText(result);
         mInput.setSelection(before.length());
+    }
+
+    private void deleteAtIndex(String toDelete, int start) {
+        int end = start + toDelete.length();
+        Editable content = mInput.getText();
+        if (start < content.length() && end <= content.length()) {
+            if (content.subSequence(start, end).toString().equals(toDelete)) {
+                content.delete(start, end);
+            }
+        }
     }
 }
