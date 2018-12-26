@@ -289,7 +289,11 @@ public class Engine {
                 for (TLExpression exp : expression.subList(1, expression.size())) {
                     args.add(evaluate(exp, environment));
                 }
-                return apply(function, args);
+                try {
+                    return apply(function, args);
+                } catch (IllegalArgumentException ex) {
+                    throw new TLRuntimeException(first + ": " + function + "\n" + ex.getMessage(), ex);
+                }
             }
         } else {
             throw new IllegalArgumentException("Can't evaluate " + object);
@@ -380,5 +384,13 @@ public class Engine {
 
     public TLExpression execute(String program, TLEnvironment environment) throws Exception {
         return evaluate(parse(program), environment);
+    }
+
+    public static class TLRuntimeException extends RuntimeException {
+        public TLRuntimeException() {
+        }
+        public TLRuntimeException(String message, Throwable cause) {
+            super(message, cause);
+        }
     }
 }
