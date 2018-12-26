@@ -8,8 +8,6 @@ public class Engine {
     public static TLAtomExpression<?> expressionOf(Object value) {
         if (value == null) {
             return TLJavaObjectExpression.of(null);
-        } else if (value instanceof Number) {
-            return TLNumberExpression.of((Number) value);
         } else if (value.getClass().isArray()) {
             return TLArrayExpression.of(value);
         } else {
@@ -146,14 +144,6 @@ public class Engine {
             TLSymbolExpression symbol = new TLSymbolExpression();
             symbol.value = value;
             return symbol;
-        }
-    }
-
-    public static class TLNumberExpression extends TLAtomExpression<Number> {
-        public static TLNumberExpression of(Number value) {
-            TLNumberExpression number = new TLNumberExpression();
-            number.value = value;
-            return number;
         }
     }
 
@@ -334,12 +324,12 @@ public class Engine {
 
     private TLExpression atomize(String token) {
         try {
-            return TLNumberExpression.of(Integer.parseInt(token));
+            return TLJavaObjectExpression.of(Integer.parseInt(token));
         } catch (NumberFormatException ex) {
             // Not an int
         }
         try {
-            return TLNumberExpression.of(Double.parseDouble(token));
+            return TLJavaObjectExpression.of(Double.parseDouble(token));
         } catch (NumberFormatException ex) {
             // Not a double
         }

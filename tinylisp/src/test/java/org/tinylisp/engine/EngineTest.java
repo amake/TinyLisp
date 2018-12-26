@@ -67,9 +67,9 @@ public class EngineTest {
     public void testEvaluate() throws Exception {
         Engine.TLListExpression exp = new Engine.TLListExpression();
         exp.add(Engine.TLSymbolExpression.of("add"));
-        exp.add(Engine.TLNumberExpression.of(1));
-        exp.add(Engine.TLNumberExpression.of(2));
-        exp.add(Engine.TLNumberExpression.of(3));
+        exp.add(Engine.expressionOf(1));
+        exp.add(Engine.expressionOf(2));
+        exp.add(Engine.expressionOf(3));
 
         assertEquals(Engine.expressionOf(6), engine.evaluate(exp, env));
     }
