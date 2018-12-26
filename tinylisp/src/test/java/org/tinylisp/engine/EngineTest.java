@@ -140,11 +140,14 @@ public class EngineTest {
         assertEquals(Arrays.asList("(", "a", "b", "[", "c", "]", ")"), engine.tokenize("(a b [c])"));
         assertEquals(Arrays.asList("(", "a", "b", "\"", "foo bar", "\"", ")"),
                 engine.tokenize("(a b \"foo bar\")"));
+        assertEquals(Arrays.asList("(", "a", "b", "\"", "  ", "\"", ")"),
+                engine.tokenize("(a b \"  \")"));
     }
 
     @Test
     public void testString() throws Exception {
         assertEquals("foo", engine.execute("\"foo\"", env).getValue());
+        assertEquals(" ", engine.execute("\" \"", env).getValue());
         try {
             engine.execute("foo", env);
             fail("String without quotes is a symbol; evaluating an undefined symbol is an error");

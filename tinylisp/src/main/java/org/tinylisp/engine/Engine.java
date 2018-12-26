@@ -362,10 +362,13 @@ public class Engine {
                     tokens.add(String.valueOf(c));
                 }
             } else {
-                if (c == '(' || c == ')' || c == '[' || c == ']' || c == ' ' || c == '\t') {
-                    tokens.add(input.substring(start, i));
+                if (c == '(' || c == ')' || c == '[' || c == ']') {
+                    addIfNotEmpty(tokens, input.substring(start, i));
                     start = i + 1;
                     tokens.add(String.valueOf(c));
+                } else if (Character.isWhitespace(c)) {
+                    addIfNotEmpty(tokens, input.substring(start, i));
+                    start = i + 1;
                 } else if (c == '"') {
                     inString = true;
                     tokens.add(String.valueOf(c));
@@ -373,13 +376,14 @@ public class Engine {
                 }
             }
         }
-        tokens.add(input.substring(start));
-        for (Iterator<String> it = tokens.iterator(); it.hasNext();) {
-            if (it.next().trim().isEmpty()) {
-                it.remove();
-            }
-        }
+        addIfNotEmpty(tokens, input.substring(start));
         return tokens;
+    }
+
+    private void addIfNotEmpty(List<String> list, String value) {
+        if (!value.trim().isEmpty()) {
+            list.add(value);
+        }
     }
 
     public TLExpression execute(String program, TLEnvironment environment) throws Exception {
