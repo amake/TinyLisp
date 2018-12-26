@@ -191,23 +191,14 @@ public class MainActivity extends AppCompatActivity implements TextView.OnEditor
         Log.d(TAG, "Input: onTextChanged; s=" + s + "; start=" + start + ", before=" + before + ", count=" + count);
         if (before == 0 && count == 1) {
             // Insert
-            String changed = s.subSequence(start, start + count).toString();
-            final String insert;
-            if ("(".equals(changed)) {
-                insert = ")";
-            } else if ("[".equals(changed)) {
-                insert = "]";
-            } else if ("\"".equals(changed)) {
-                insert = "\"";
-            } else {
-                insert = null;
-            }
-            if (insert != null) {
-                mInput.post(new Runnable() {
-                    @Override public void run() {
-                        insertAfterCaret(insert);
-                    }
-                });
+            int end = start + count;
+            String inserted = s.subSequence(start, end).toString();
+            if ("(".equals(inserted)) {
+                insertAfterCaret(")");
+            } else if ("[".equals(inserted)) {
+                insertAfterCaret("]");
+            } else if ("\"".equals(inserted)) {
+                insertAfterCaret("\"");
             }
         }
     }
