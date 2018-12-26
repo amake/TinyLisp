@@ -10,8 +10,8 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity implements TextView.OnEditor
     private ScrollView mScrollView;
     private TextView mOutput;
     private EditText mInput;
-    private Button mTabButton;
+    private ImageButton mTabButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

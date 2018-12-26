@@ -26,19 +26,21 @@
                 app:fontFamily="monospace"/>
     </ScrollView>
 
-    <Button
+    <ImageButton
             android:id="@+id/tab_button"
-            android:text="@string/tab_key_label"
+            style="?android:attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:contentDescription="@string/tab_key_label"
             android:minWidth="0dp"
             android:nextFocusLeft="@id/input"
             android:nextFocusForward="@id/input"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintEnd_toStartOf="@id/input"
+            android:src="@drawable/ic_keyboard_arrow_right_black_24dp"
+            android:text="@string/tab_key_label"
             app:layout_constraintBottom_toBottomOf="parent"
-            style="?android:attr/borderlessButtonStyle"/>
+            app:layout_constraintEnd_toStartOf="@id/input"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"/>
 
     <EditText
             android:id="@+id/input"
