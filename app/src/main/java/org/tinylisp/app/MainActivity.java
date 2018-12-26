@@ -193,7 +193,17 @@ public class MainActivity extends AppCompatActivity implements TextView.OnEditor
             // Insert
             int end = start + count;
             String inserted = s.subSequence(start, end).toString();
-            if ("(".equals(inserted)) {
+            final String next;
+            if (end + 1 <= s.length()) {
+                next = s.subSequence(end, end + 1).toString();
+            } else {
+                next = null;
+            }
+            if (inserted.equals(next) &&
+                    (next.equals(")") || next.equals("]") || next.equals("\""))) {
+                // Skip already-present closing char
+                deleteAtIndex(next, end);
+            } else if ("(".equals(inserted)) {
                 insertAfterCaret(")");
             } else if ("[".equals(inserted)) {
                 insertAfterCaret("]");
