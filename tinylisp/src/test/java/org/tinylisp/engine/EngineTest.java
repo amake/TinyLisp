@@ -146,6 +146,8 @@ public class EngineTest {
 
     @Test
     public void testString() throws Exception {
+        assertTrue("String should parse to Java object, not symbol",
+                engine.execute("\"foo\"", env) instanceof Engine.TLJavaObjectExpression);
         assertEquals("foo", engine.execute("\"foo\"", env).getValue());
         assertEquals(" ", engine.execute("\" \"", env).getValue());
         try {
@@ -156,6 +158,8 @@ public class EngineTest {
         }
         assertEquals("foobar baz",
                 engine.execute("(concat \"foo\" \"bar baz\")", env).getValue());
+        assertTrue("String return value should wrap to Java object, not symbol",
+                engine.execute("(concat \"foo\" \"bar baz\")", env) instanceof Engine.TLJavaObjectExpression);
     }
 
     @Test

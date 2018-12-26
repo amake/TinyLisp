@@ -8,8 +8,6 @@ public class Engine {
     public static TLAtomExpression<?> expressionOf(Object value) {
         if (value == null) {
             return TLJavaObjectExpression.of(null);
-        } else if (value instanceof String) {
-            return TLSymbolExpression.of((String) value);
         } else if (value instanceof Number) {
             return TLNumberExpression.of((Number) value);
         } else if (value.getClass().isArray()) {
