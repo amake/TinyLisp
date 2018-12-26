@@ -177,7 +177,8 @@ public class MainActivity extends AppCompatActivity implements TextView.OnEditor
             String deleted = s.subSequence(start, start + count).toString();
             final String next = s.subSequence(start + count, start + count + 1).toString();
             if ("(".equals(deleted) && ")".equals(next)
-                || "[".equals(deleted) && "]".equals(next)) {
+                || "[".equals(deleted) && "]".equals(next)
+                || "\"".equals(deleted) && "\"".equals(next)) {
                 mInput.post(new Runnable() {
                     @Override public void run() {
                         deleteAtIndex(next, start);
@@ -196,6 +197,8 @@ public class MainActivity extends AppCompatActivity implements TextView.OnEditor
                 insert = ")";
             } else if ("[".equals(changed)) {
                 insert = "]";
+            } else if ("\"".equals(changed)) {
+                insert = "\"";
             } else {
                 insert = null;
             }
@@ -227,7 +230,10 @@ public class MainActivity extends AppCompatActivity implements TextView.OnEditor
         Editable content = mInput.getText();
         if (start < content.length() && end <= content.length()) {
             if (content.subSequence(start, end).toString().equals(toDelete)) {
-                content.delete(start, end);
+                StringBuilder builder = new StringBuilder(content);
+                builder.delete(start, end);
+                mInput.setText(builder);
+                mInput.setSelection(start);
             }
         }
     }
