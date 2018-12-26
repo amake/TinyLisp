@@ -1,5 +1,7 @@
 package org.tinylisp.app;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -12,6 +14,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.TextView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +49,12 @@ public class MainActivity extends AppCompatActivity implements TextView.OnEditor
         mTabButton.setOnClickListener(this);
 
         mRepl = new TinyLispRepl(this);
+
+        try {
+            restoreHistory();
+        } catch (Exception ex) {
+            Log.d(TAG, "Error restoring history", ex);
+        }
     }
 
     @Override protected void onStart() {
@@ -58,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements TextView.OnEditor
         if (actionId == EditorInfo.IME_NULL) {
             if (v.length() > 0) {
                 String input = v.getText().toString().trim();
-                history.add(input);
+                appendHistory(input);
                 index = null;
                 mRepl.execute(input);
                 v.setText("");
@@ -106,8 +117,33 @@ public class MainActivity extends AppCompatActivity implements TextView.OnEditor
         }
     }
 
+    private static final String HISTORY_KEY = "historyKey";
     private List<String> history = new ArrayList<>();
     private Integer index;
+
+    private void appendHistory(String item) {
+        history.add(item);
+        saveHistory();
+    }
+
+    private void saveHistory() {
+        SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(HISTORY_KEY, new JSONArray(history).toString());
+        editor.apply();
+    }
+
+    private void restoreHistory() throws JSONException {
+        history.clear();
+        SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
+        String json = preferences.getString(HISTORY_KEY, null);
+        if (json != null) {
+            JSONArray array = new JSONArray(json);
+            for (int i = 0; i < array.length(); i++) {
+                history.add(array.getString(i));
+            }
+        }
+    }
 
     /* View.OnKeyListener */
 
