@@ -3,12 +3,15 @@ package org.tinylisp.app;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.app.ShareCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
@@ -59,6 +62,28 @@ public class MainActivity extends AppCompatActivity implements TextView.OnEditor
         } catch (Exception ex) {
             Log.d(TAG, "Error restoring history", ex);
         }
+    }
+
+    @Override public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+        case R.id.action_share:
+            shareConsoleLog();
+            return true;
+        default:
+            return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void shareConsoleLog() {
+        ShareCompat.IntentBuilder.from(this)
+            .setText(mOutput.getText().toString())
+            .setType("text/plain")
+            .startChooser();
     }
 
     /* TextView.OnEditorActionListener */
