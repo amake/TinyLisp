@@ -74,7 +74,7 @@ public class Engine {
             TLLambdaFunction lambda = new TLLambdaFunction();
             lambda.params = params;
             lambda.body = body;
-            lambda.env = new TLEnvironment(env);
+            lambda.env = env;
             lambda.engine = engine;
             return lambda;
         }
@@ -84,12 +84,13 @@ public class Engine {
         private Engine engine;
         @Override
         public TLExpression invoke(TLListExpression args) throws Exception {
+            TLEnvironment tempEnv = new TLEnvironment(env);
             for (int i = 0; i < params.size(); i++) {
                 TLSymbolExpression param = (TLSymbolExpression) params.get(i);
                 TLExpression arg = args.get(i);
-                env.put(param, arg);
+                tempEnv.put(param, arg);
             }
-            return engine.evaluate(body, env);
+            return engine.evaluate(body, tempEnv);
         }
         @Override protected List<?> getParameterHelpNames() {
             return params;

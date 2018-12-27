@@ -125,6 +125,13 @@ public class EngineTest {
     }
 
     @Test
+    public void testRecursiveReference() throws Exception {
+        Engine.TLEnvironment stdEnv = Engine.defaultEnvironment();
+        engine.execute("(set ** (lambda (x y) (if (<= y 0) 1 (* x (** x (- y 1))))))", stdEnv);
+        assertEquals(256, engine.execute("(** 2 8)", stdEnv).getValue());
+    }
+
+    @Test
     public void testQuote() throws Exception {
         assertEquals("foo", engine.execute("(quote foo)", env).getValue());
         assertEquals(Arrays.asList("foo", "bar"), engine.execute("(quote (foo bar))", env).getValue());
