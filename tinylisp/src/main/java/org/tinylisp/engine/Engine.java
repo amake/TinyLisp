@@ -216,9 +216,14 @@ public class Engine {
         environment.put(TLSymbolExpression.of("+"), new TLFunction() {
             @Override
             public TLExpression invoke(TLListExpression args) {
-                Integer result = 0;
+                Number result = 0;
                 for (TLExpression arg : args) {
-                    result += (Integer) arg.getValue();
+                    Object value = arg.getValue();
+                    if (result instanceof Double || value instanceof Double) {
+                        result = result.doubleValue() + ((Number) value).doubleValue();
+                    } else if (value instanceof Integer) {
+                        result = result.intValue() + (Integer) value;
+                    }
                 }
                 return expressionOf(result);
             }
