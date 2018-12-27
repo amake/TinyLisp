@@ -256,6 +256,10 @@ public class Engine {
             return object;
         } else if (object instanceof TLListExpression) {
             TLListExpression expression = (TLListExpression) object;
+            if (expression.isEmpty()) {
+                // Empty list is nil/false
+                return expression;
+            }
             // The first item in a list must be a symbol
             TLExpression first = expression.get(0);
             if (first instanceof TLSymbolExpression && "set".equals(((TLSymbolExpression) first).getValue())) {
