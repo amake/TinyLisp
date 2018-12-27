@@ -49,17 +49,13 @@ public class MainActivity extends AppCompatActivity implements TextView.OnEditor
         mTabButton.setOnClickListener(this);
 
         mRepl = new TinyLispRepl(this);
+        mRepl.init();
 
         try {
             restoreHistory();
         } catch (Exception ex) {
             Log.d(TAG, "Error restoring history", ex);
         }
-    }
-
-    @Override protected void onStart() {
-        super.onStart();
-        mRepl.init();
     }
 
     /* TextView.OnEditorActionListener */
