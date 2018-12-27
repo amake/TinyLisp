@@ -238,6 +238,9 @@ public class Engine {
         public TLEnvironment(Map<TLSymbolExpression, TLExpression> env) {
             super(env);
         }
+        public TLExpression alias(TLSymbolExpression from, TLSymbolExpression to) {
+            return put(to, get(from));
+        }
     }
 
     public TLExpression apply(TLFunction function, TLListExpression arguments) throws Exception {
