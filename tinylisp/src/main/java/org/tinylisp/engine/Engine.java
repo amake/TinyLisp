@@ -228,6 +228,156 @@ public class Engine {
                 return expressionOf(result);
             }
         });
+        environment.put(TLSymbolExpression.of("-"), new TLFunction() {
+            @Override
+            public TLExpression invoke(TLListExpression args) {
+                Number result = (Number) args.get(0).getValue();
+                for (TLExpression arg : args.subList(1, args.size())) {
+                    Object value = arg.getValue();
+                    if (result instanceof Double || value instanceof Double) {
+                        result = result.doubleValue() - ((Number) value).doubleValue();
+                    } else if (value instanceof Integer) {
+                        result = result.intValue() - (Integer) value;
+                    }
+                }
+                return expressionOf(result);
+            }
+        });
+        environment.put(TLSymbolExpression.of("*"), new TLFunction() {
+            @Override
+            public TLExpression invoke(TLListExpression args) {
+                Number result = 1;
+                for (TLExpression arg : args) {
+                    Object value = arg.getValue();
+                    if (result instanceof Double || value instanceof Double) {
+                        result = result.doubleValue() * ((Number) value).doubleValue();
+                    } else if (value instanceof Integer) {
+                        result = result.intValue() * (Integer) value;
+                    }
+                }
+                return expressionOf(result);
+            }
+        });
+        environment.put(TLSymbolExpression.of("/"), new TLFunction() {
+            @Override
+            public TLExpression invoke(TLListExpression args) {
+                Number result = (Number) args.get(0).getValue();
+                for (TLExpression arg : args.subList(1, args.size())) {
+                    Object value = arg.getValue();
+                    if (result instanceof Double || value instanceof Double) {
+                        result = result.doubleValue() / ((Number) value).doubleValue();
+                    } else if (value instanceof Integer) {
+                        result = result.intValue() / (Integer) value;
+                    }
+                }
+                return expressionOf(result);
+            }
+        });
+        environment.put(TLSymbolExpression.of("<"), new TLFunction() {
+            @Override public TLExpression invoke(TLListExpression args) {
+                double first = ((Number) args.get(0).getValue()).doubleValue();
+                for (TLExpression arg : args.subList(1, args.size())) {
+                    if (first >= ((Number) arg.getValue()).doubleValue()) {
+                        return expressionOf(false);
+                    }
+                }
+                return expressionOf(true);
+            }
+        });
+        environment.put(TLSymbolExpression.of(">"), new TLFunction() {
+            @Override public TLExpression invoke(TLListExpression args) {
+                double first = ((Number) args.get(0).getValue()).doubleValue();
+                for (TLExpression arg : args.subList(1, args.size())) {
+                    if (first <= ((Number) arg.getValue()).doubleValue()) {
+                        return expressionOf(false);
+                    }
+                }
+                return expressionOf(true);
+            }
+        });
+        environment.put(TLSymbolExpression.of("<="), new TLFunction() {
+            @Override public TLExpression invoke(TLListExpression args) {
+                double first = ((Number) args.get(0).getValue()).doubleValue();
+                for (TLExpression arg : args.subList(1, args.size())) {
+                    if (first > ((Number) arg.getValue()).doubleValue()) {
+                        return expressionOf(false);
+                    }
+                }
+                return expressionOf(true);
+            }
+        });
+        environment.put(TLSymbolExpression.of(">="), new TLFunction() {
+            @Override public TLExpression invoke(TLListExpression args) {
+                double first = ((Number) args.get(0).getValue()).doubleValue();
+                for (TLExpression arg : args.subList(1, args.size())) {
+                    if (first < ((Number) arg.getValue()).doubleValue()) {
+                        return expressionOf(false);
+                    }
+                }
+                return expressionOf(true);
+            }
+        });
+        environment.put(TLSymbolExpression.of("is"), new TLFunction() {
+            @Override public TLExpression invoke(TLListExpression args) {
+                Object arg1 = args.get(0).getValue();
+                Object arg2 = args.get(1).getValue();
+                return expressionOf(arg1 == arg2);
+            }
+        });
+        environment.put(TLSymbolExpression.of("eq"), new TLFunction() {
+            @Override public TLExpression invoke(TLListExpression args) {
+                Object arg1 = args.get(0).getValue();
+                Object arg2 = args.get(1).getValue();
+                return expressionOf(arg1 == arg2 || arg1 != null && arg1.equals(arg2));
+            }
+        });
+        environment.alias(TLSymbolExpression.of("eq"), TLSymbolExpression.of("="));
+        environment.put(TLSymbolExpression.of("car"), new TLFunction() {
+            @Override public TLExpression invoke(TLListExpression args) {
+                TLListExpression arg = (TLListExpression) args.get(0);
+                return arg.get(0);
+            }
+        });
+        environment.put(TLSymbolExpression.of("cdr"), new TLFunction() {
+            @Override public TLExpression invoke(TLListExpression args) {
+                TLListExpression arg = (TLListExpression) args.get(0);
+                return new TLListExpression(arg.subList(1, arg.size()));
+            }
+        });
+        environment.put(TLSymbolExpression.of("cons"), new TLFunction() {
+            @Override public TLExpression invoke(TLListExpression args) {
+                TLListExpression result = new TLListExpression();
+                result.add(args.get(0));
+                TLExpression rest = args.get(1);
+                if (rest instanceof TLListExpression) {
+                    result.addAll((TLListExpression) rest);
+                } else {
+                    result.add(rest);
+                }
+                return result;
+            }
+        });
+        environment.put(TLSymbolExpression.of("length"), new TLFunction() {
+            @Override public TLExpression invoke(TLListExpression args) {
+                return expressionOf(((TLListExpression) args.get(0)).size());
+            }
+        });
+        environment.put(TLSymbolExpression.of("list"), new TLFunction() {
+            @Override public TLExpression invoke(TLListExpression args) {
+                return args;
+            }
+        });
+        environment.put(TLSymbolExpression.of("map"), new TLFunction() {
+            @Override public TLExpression invoke(TLListExpression args) throws Exception {
+                TLListExpression result = new TLListExpression();
+                TLFunction function = (TLFunction) args.get(0);
+                TLListExpression list = (TLListExpression) args.get(1);
+                for (TLExpression arg : list) {
+                    result.add(function.invoke(new TLListExpression(Collections.singletonList(arg))));
+                }
+                return result;
+            }
+        });
         return environment;
     }
 

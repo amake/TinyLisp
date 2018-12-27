@@ -172,4 +172,90 @@ public class EngineTest {
         assertEquals("TLFunction(int,int)", toString.toString());
         assertEquals("TLFunction(int,int)", engine.execute("toString", env).toString());
     }
+
+    @Test
+    public void testDefaultEnvironment() throws Exception {
+        Engine.TLEnvironment stdEnv = Engine.defaultEnvironment();
+        // +
+        assertEquals("Double + Double",
+                1.1, engine.execute("(+ 0.5 0.6)", stdEnv).getValue());
+        assertEquals("Integer + Integer",
+                5, engine.execute("(+ 2 3)", stdEnv).getValue());
+        assertEquals("Double + Integer",
+                1.1, engine.execute("(+ 0.1 1)", stdEnv).getValue());
+        // -
+        assertEquals("Double - Double",
+                0.5 - 0.6, engine.execute("(- 0.5 0.6)", stdEnv).getValue());
+        assertEquals("Integer - Integer",
+                -1, engine.execute("(- 2 3)", stdEnv).getValue());
+        assertEquals("Double - Integer",
+                0.1 - 1, engine.execute("(- 0.1 1)", stdEnv).getValue());
+        // *
+        assertEquals("Double * Double",
+                0.5 * 0.6, engine.execute("(* 0.5 0.6)", stdEnv).getValue());
+        assertEquals("Integer * Integer",
+                6, engine.execute("(* 2 3)", stdEnv).getValue());
+        assertEquals("Double * Integer",
+                0.1 * 2, engine.execute("(* 0.1 2)", stdEnv).getValue());
+        // /
+        assertEquals("Double / Double",
+                0.5 / 0.6, engine.execute("(/ 0.5 0.6)", stdEnv).getValue());
+        assertEquals("Integer / Integer",
+                1, engine.execute("(/ 3 2)", stdEnv).getValue());
+        assertEquals("Double / Integer",
+                0.1 / 2, engine.execute("(/ 0.1 2)", stdEnv).getValue());
+        // <
+        assertTrue("Double < Double", engine.execute("(< 0.5 0.6)", stdEnv).asBoolean());
+        assertFalse("Integer < Integer", engine.execute("(< 3 2)", stdEnv).asBoolean());
+        assertTrue("Double < Integer", engine.execute("(< 0.1 2)", stdEnv).asBoolean());
+        // >
+        assertFalse("Double > Double", engine.execute("(> 0.5 0.6)", stdEnv).asBoolean());
+        assertTrue("Integer > Integer", engine.execute("(> 3 2)", stdEnv).asBoolean());
+        assertFalse("Double > Integer", engine.execute("(> 0.1 2)", stdEnv).asBoolean());
+        // <=
+        assertTrue("Double <= Double", engine.execute("(<= 0.5 0.6)", stdEnv).asBoolean());
+        assertTrue("Double <= Double", engine.execute("(<= 0.6 0.6)", stdEnv).asBoolean());
+        assertFalse("Integer <= Integer", engine.execute("(<= 3 2)", stdEnv).asBoolean());
+        assertTrue("Integer <= Integer", engine.execute("(<= 3 3)", stdEnv).asBoolean());
+        assertTrue("Double <= Integer", engine.execute("(<= 0.1 2)", stdEnv).asBoolean());
+        assertTrue("Double <= Integer", engine.execute("(<= 2.0 2)", stdEnv).asBoolean());
+        // >=
+        assertFalse("Double >= Double", engine.execute("(>= 0.5 0.6)", stdEnv).asBoolean());
+        assertTrue("Double >= Double", engine.execute("(>= 0.6 0.6)", stdEnv).asBoolean());
+        assertTrue("Integer >= Integer", engine.execute("(>= 3 2)", stdEnv).asBoolean());
+        assertTrue("Integer >= Integer", engine.execute("(>= 3 3)", stdEnv).asBoolean());
+        assertFalse("Double >= Integer", engine.execute("(>= 0.1 2)", stdEnv).asBoolean());
+        assertTrue("Double >= Integer",  engine.execute("(>= 2.0 2)", stdEnv).asBoolean());
+        // is
+        Object obj = new Object();
+        stdEnv.put(Engine.TLSymbolExpression.of("obj"), Engine.expressionOf(obj));
+        stdEnv.put(Engine.TLSymbolExpression.of("obj2"), Engine.expressionOf(obj));
+        stdEnv.put(Engine.TLSymbolExpression.of("obj3"), Engine.expressionOf(new Object()));
+        assertTrue(engine.execute("(is obj obj2)", stdEnv).asBoolean());
+        assertFalse(engine.execute("(is obj obj3)", stdEnv).asBoolean());
+        assertFalse(engine.execute("(is \"foo\" \"foo\")", stdEnv).asBoolean());
+        // eq
+        assertTrue(engine.execute("(eq 1 1)", stdEnv).asBoolean());
+        assertFalse(engine.execute("(eq 1 2)", stdEnv).asBoolean());
+        assertTrue(engine.execute("(eq \"foo\" \"foo\")", stdEnv).asBoolean());
+        assertTrue(engine.execute("(is eq =)", stdEnv).asBoolean());
+        // car
+        assertEquals(1, engine.execute("(car (quote (1)))", stdEnv).getValue());
+        assertEquals(1, engine.execute("(car (quote (1 2 3 4)))", stdEnv).getValue());
+        // cdr
+        assertEquals(Collections.emptyList(), engine.execute("(cdr (quote (1)))", stdEnv).getValue());
+        assertEquals(Arrays.asList(2, 3, 4), engine.execute("(cdr (quote (1 2 3 4)))", stdEnv).getValue());
+        // cons
+        assertEquals(Arrays.asList(1, 2), engine.execute("(cons 1 2)", stdEnv).getValue());
+        assertEquals(Arrays.asList(0, 1, 2, 3), engine.execute("(cons 0 (quote (1 2 3)))", stdEnv).getValue());
+        // length
+        assertEquals(0, engine.execute("(length ())", stdEnv).getValue());
+        assertEquals(3, engine.execute("(length (quote (1 2 3)))", stdEnv).getValue());
+        // list
+        assertEquals(Arrays.asList(1, 2, 3), engine.execute("(list 1 2 3)", stdEnv).getValue());
+        assertEquals(Arrays.asList(1, 2, 6), engine.execute("(list 1 2 (+ 1 2 3))", stdEnv).getValue());
+        // map
+        assertEquals(Arrays.asList(2, 3, 4),
+                engine.execute("(map (lambda (x) (+ x 1)) (list 1 2 3))", stdEnv).getValue());
+    }
 }
