@@ -442,8 +442,8 @@ public class Engine {
                 }
                 try {
                     return apply(function, args);
-                } catch (IllegalArgumentException ex) {
-                    throw new TLRuntimeException(first + ": " + function + "\n" + ex.getMessage(), ex);
+                } catch (IllegalArgumentException | IndexOutOfBoundsException ex) {
+                    throw new TLRuntimeException(first + ": " + function + "\n" + ex, ex);
                 }
             }
         } else {
