@@ -258,6 +258,7 @@ public class EngineTest {
         // length
         assertEquals(0, engine.execute("(length ())", stdEnv).getValue());
         assertEquals(3, engine.execute("(length (quote (1 2 3)))", stdEnv).getValue());
+        assertEquals(3, engine.execute("(length [1 2 3])", stdEnv).getValue());
         // list
         assertEquals(Arrays.asList(1, 2, 3), engine.execute("(list 1 2 3)", stdEnv).getValue());
         assertEquals(Arrays.asList(1, 2, 6), engine.execute("(list 1 2 (+ 1 2 3))", stdEnv).getValue());

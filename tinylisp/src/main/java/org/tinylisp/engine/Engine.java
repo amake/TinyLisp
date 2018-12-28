@@ -188,6 +188,15 @@ public class Engine {
                 return ((Object[]) value)[index];
             }
         }
+        public int length() {
+            if (value instanceof int[]) {
+                return ((int[]) value).length;
+            } else if (value instanceof double[]) {
+                return ((double[]) value).length;
+            } else {
+                return ((Object[]) value).length;
+            }
+        }
         private static Class<?> getClass(List<Object> values) {
             if (values.isEmpty()) {
                 return Object.class;
@@ -369,7 +378,12 @@ public class Engine {
         });
         environment.put(TLSymbolExpression.of("length"), new TLFunction() {
             @Override public TLExpression invoke(TLListExpression args) {
-                return expressionOf(((TLListExpression) args.get(0)).size());
+                TLExpression listOrArray = args.get(0);
+                if (listOrArray instanceof TLArrayExpression) {
+                    return expressionOf(((TLArrayExpression) listOrArray).length());
+                } else {
+                    return expressionOf(((TLListExpression) listOrArray).size());
+                }
             }
         });
         environment.put(TLSymbolExpression.of("list"), new TLFunction() {
