@@ -32,15 +32,7 @@ public class Engine {
             return true;
         }
         @Override public String toString() {
-            StringBuilder builder = new StringBuilder("TLFunction(");
-            for (Object param : getParameterHelpNames()) {
-                builder.append(param).append(",");
-            }
-            if (builder.charAt(builder.length() - 1) == ',') {
-                builder.deleteCharAt(builder.length() - 1);
-            }
-            builder.append(')');
-            return builder.toString();
+            return listToString("TLFunction(", getParameterHelpNames(), ",", ")");
         }
     }
 
@@ -566,12 +558,6 @@ public class Engine {
         return tokens;
     }
 
-    private void addIfNotEmpty(List<String> list, String value) {
-        if (!value.trim().isEmpty()) {
-            list.add(value);
-        }
-    }
-
     public TLExpression execute(String program, TLEnvironment environment) throws Exception {
         return evaluate(parse(program), environment);
     }
@@ -581,6 +567,14 @@ public class Engine {
         }
         public TLRuntimeException(String message, Throwable cause) {
             super(message, cause);
+        }
+    }
+
+    /* Utility functions */
+
+    private static void addIfNotEmpty(List<String> list, String value) {
+        if (!value.trim().isEmpty()) {
+            list.add(value);
         }
     }
 }
