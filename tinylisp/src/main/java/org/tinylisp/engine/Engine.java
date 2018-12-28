@@ -389,6 +389,17 @@ public class Engine {
             }
         });
         environment.put(TLSymbolExpression.of("null"), expressionOf(null));
+        environment.put(TLSymbolExpression.of("nth"), new TLFunction() {
+            @Override public TLExpression invoke(TLListExpression args) {
+                int n = (Integer) args.get(0).getValue();
+                TLExpression listOrArray = args.get(1);
+                if (listOrArray instanceof TLArrayExpression) {
+                    return expressionOf(((TLArrayExpression) listOrArray).get(n));
+                } else {
+                    return ((TLListExpression) listOrArray).get(n);
+                }
+            }
+        });
         return environment;
     }
 

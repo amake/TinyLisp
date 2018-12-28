@@ -264,5 +264,8 @@ public class EngineTest {
         // map
         assertEquals(Arrays.asList(2, 3, 4),
                 engine.execute("(map (lambda (x) (+ x 1)) (list 1 2 3))", stdEnv).getValue());
+        // nth
+        assertEquals(1, engine.execute("(nth 1 [0 1 2])", stdEnv).getValue());
+        assertEquals(1, engine.execute("(nth 1 (list 0 1 2))", stdEnv).getValue());
     }
 }
