@@ -459,8 +459,9 @@ public class Engine {
             if (first instanceof TLSymbolExpression && "set".equals(((TLSymbolExpression) first).getValue())) {
                 TLSymbolExpression name = (TLSymbolExpression) expression.get(1);
                 TLExpression value = expression.get(2);
-                environment.put(name, evaluate(value, environment));
-                return TLJavaObjectExpression.of(null);
+                TLExpression eValue = evaluate(value, environment);
+                environment.put(name, eValue);
+                return eValue;
             } else if (first instanceof TLSymbolExpression && "lambda".equals(((TLSymbolExpression) first).getValue())) {
                 TLListExpression params = (TLListExpression) expression.get(1);
                 TLListExpression body = (TLListExpression) expression.get(2);

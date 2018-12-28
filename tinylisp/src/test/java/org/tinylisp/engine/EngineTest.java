@@ -105,8 +105,8 @@ public class EngineTest {
 
     @Test
     public void testSet() throws Exception {
-        Engine.TLExpression result = engine.execute("(set foo 123)", env);
-        assertNull("Result of `set' is null", result.getValue());
+        assertEquals("Result of `set' is the value",
+                123, engine.execute("(set foo 123)", env).getValue());
         assertTrue(env.containsKey(Engine.TLSymbolExpression.of("foo")));
         assertEquals(Engine.expressionOf(123), env.get(Engine.TLSymbolExpression.of("foo")));
     }
