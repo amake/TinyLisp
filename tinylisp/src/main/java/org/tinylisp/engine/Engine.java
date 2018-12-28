@@ -521,6 +521,11 @@ public class Engine {
             String string = tokens.remove(0);
             tokens.remove(0);
             return TLJavaObjectExpression.of(string);
+        } else if ("'".equals(token)) {
+            TLListExpression expression = new TLListExpression();
+            expression.add(atomize("quote"));
+            expression.add(readTokens(tokens));
+            return expression;
         } else {
             return atomize(token);
         }
@@ -563,6 +568,9 @@ public class Engine {
                     start = i + 1;
                 } else if (c == '"') {
                     inString = true;
+                    tokens.add(String.valueOf(c));
+                    start = i + 1;
+                } else if (c == '\'') {
                     tokens.add(String.valueOf(c));
                     start = i + 1;
                 }

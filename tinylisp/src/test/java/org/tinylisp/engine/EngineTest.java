@@ -140,6 +140,13 @@ public class EngineTest {
     }
 
     @Test
+    public void testQuoteSugar() throws Exception {
+        assertEquals("foo", engine.execute("'foo", env).getValue());
+        assertEquals(Arrays.asList("quote", "foo"), engine.parse("'foo").getValue());
+        assertEquals(Arrays.asList(1, 2, 3), engine.execute("'(1 2 3)", env).getValue());
+    }
+
+    @Test
     public void testTokenize() {
         assertEquals(Collections.singletonList("foo"), engine.tokenize("foo"));
         assertEquals(Arrays.asList("(", "a", "b", "c", ")"), engine.tokenize("(a b c)"));
@@ -149,6 +156,7 @@ public class EngineTest {
                 engine.tokenize("(a b \"foo bar\")"));
         assertEquals(Arrays.asList("(", "a", "b", "\"", "  ", "\"", ")"),
                 engine.tokenize("(a b \"  \")"));
+        assertEquals(Arrays.asList("'", "(", "a", "b", "c", ")"), engine.tokenize("'(a b c)"));
     }
 
     @Test
