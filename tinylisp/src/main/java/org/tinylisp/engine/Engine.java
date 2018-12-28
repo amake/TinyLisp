@@ -179,6 +179,15 @@ public class Engine {
             array.value = value;
             return array;
         }
+        public Object get(int index) {
+            if (value instanceof int[]) {
+                return ((int[]) value)[index];
+            } else if (value instanceof double[]) {
+                return ((double[]) value)[index];
+            } else {
+                return ((Object[]) value)[index];
+            }
+        }
         private static Class<?> getClass(List<Object> values) {
             if (values.isEmpty()) {
                 return Object.class;
