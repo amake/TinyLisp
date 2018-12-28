@@ -106,6 +106,9 @@ public class Engine {
             }
             return result;
         }
+        @Override public String toString() {
+            return listToString("(", this, " ", ")");
+        }
     }
 
     public abstract static class TLAtomExpression<T> implements TLExpression {
@@ -202,15 +205,25 @@ public class Engine {
             return result;
         }
         @Override public String toString() {
+            StringBuilder builder = new StringBuilder("[");
             if (value instanceof int[]) {
-                return Arrays.toString((int[]) value);
-            } else if (value instanceof float[]) {
-                return Arrays.toString((float[]) value);
+                for (int i : ((int[]) value)) {
+                    builder.append(i).append(' ');
+                }
             } else if (value instanceof double[]) {
-                return Arrays.toString((double[]) value);
+                for (double d : ((double[]) value)) {
+                    builder.append(d).append(' ');
+                }
             } else {
-                return Arrays.toString((Object[]) value);
+                for (Object o : ((Object[]) value)) {
+                    builder.append(o).append(' ');
+                }
             }
+            if (builder.charAt(builder.length() - 1) == ' ') {
+                builder.deleteCharAt(builder.length() - 1);
+            }
+            builder.append(']');
+            return builder.toString();
         }
     }
 

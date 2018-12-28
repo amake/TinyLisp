@@ -181,6 +181,20 @@ public class EngineTest {
     }
 
     @Test
+    public void testListString() throws Exception {
+        Engine.TLEnvironment stdEnv = Engine.defaultEnvironment();
+        assertEquals("()", engine.execute("()", stdEnv).toString());
+        assertEquals("(1 2 3)", engine.execute("(list 1 2 3)", stdEnv).toString());
+    }
+
+    @Test
+    public void testArrayString() throws Exception {
+        Engine.TLEnvironment stdEnv = Engine.defaultEnvironment();
+        assertEquals("[]", engine.execute("[]", stdEnv).toString());
+        assertEquals("[1 2 3]", engine.execute("[1 2 3]", stdEnv).toString());
+    }
+
+    @Test
     public void testDefaultEnvironment() throws Exception {
         Engine.TLEnvironment stdEnv = Engine.defaultEnvironment();
         // +
