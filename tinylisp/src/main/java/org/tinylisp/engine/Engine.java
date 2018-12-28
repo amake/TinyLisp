@@ -572,6 +572,18 @@ public class Engine {
 
     /* Utility functions */
 
+    private static String listToString(String prefix, Iterable<?> items, String delimiter, String suffix) {
+        StringBuilder builder = new StringBuilder(prefix);
+        for (Object item : items) {
+            builder.append(item).append(delimiter);
+        }
+        if (builder.substring(builder.length() - delimiter.length()).equals(delimiter)) {
+            builder.delete(builder.length() - delimiter.length(), builder.length());
+        }
+        builder.append(suffix);
+        return builder.toString();
+    }
+
     private static void addIfNotEmpty(List<String> list, String value) {
         if (!value.trim().isEmpty()) {
             list.add(value);
