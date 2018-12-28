@@ -388,6 +388,7 @@ public class Engine {
                 return result;
             }
         });
+        environment.put(TLSymbolExpression.of("null"), expressionOf(null));
         return environment;
     }
 
