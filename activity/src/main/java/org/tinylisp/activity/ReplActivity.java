@@ -1,4 +1,4 @@
-package org.tinylisp.app;
+package org.tinylisp.activity;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -25,9 +25,9 @@ import org.json.JSONException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements TextView.OnEditorActionListener, TinyLispRepl.PrintComponent, View.OnClickListener, View.OnKeyListener, TextWatcher {
+public class ReplActivity extends AppCompatActivity implements TextView.OnEditorActionListener, TinyLispRepl.PrintComponent, View.OnClickListener, View.OnKeyListener, TextWatcher {
 
-    private static final String TAG = "Main";
+    private static final String TAG = "Repl";
 
     private TinyLispRepl mRepl;
     private ScrollView mScrollView;
@@ -70,11 +70,10 @@ public class MainActivity extends AppCompatActivity implements TextView.OnEditor
     }
 
     @Override public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-        case R.id.action_share:
+        if (item.getItemId() == R.id.action_share) {
             shareConsoleLog();
             return true;
-        default:
+        } else {
             return super.onOptionsItemSelected(item);
         }
     }

@@ -1,3 +1,6 @@
 <resources>
-    <string name="app_name">activity</string>
+    <string name="app_name">TinyLisp</string>
+    <string name="input_hint">Input</string>
+    <string name="tab_key_label">Tab</string>
+    <string name="action_share">Share log</string>
 </resources>
