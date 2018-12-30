@@ -473,6 +473,12 @@ public class Engine {
                 return evaluate(result ? then : els, environment);
             } else if (isSymbol(first, "quote")) {
                 return expression.get(1);
+            } else if (isSymbol(first, "progn")) {
+                TLExpression result = null;
+                for (TLExpression exp : expression.subList(1, expression.size())) {
+                    result = evaluate(exp, environment);
+                }
+                return result;
             } else {
                 // First item wasn't a special form so it must evaluate to a function
                 TLFunction function = (TLFunction) evaluate(first, environment);

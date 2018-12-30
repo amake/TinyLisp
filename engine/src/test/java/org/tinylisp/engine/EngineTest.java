@@ -132,6 +132,12 @@ public class EngineTest {
     }
 
     @Test
+    public void testProgn() throws Exception {
+        assertEquals(6, engine.execute("(set x (progn (add 2 8) (add 1 5)))", env).getValue());
+        assertEquals(6, engine.execute("x", env).getValue());
+    }
+
+    @Test
     public void testQuote() throws Exception {
         assertEquals("foo", engine.execute("(quote foo)", env).getValue());
         assertEquals(Arrays.asList("foo", "bar"), engine.execute("(quote (foo bar))", env).getValue());
