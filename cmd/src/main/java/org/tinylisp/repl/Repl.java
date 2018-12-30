@@ -7,18 +7,18 @@ import java.io.PrintStream;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
-public class App {
+public class Repl {
 
     private final Engine mEngine = new Engine();
     private final Engine.TLEnvironment mEnv = Engine.defaultEnvironment();
     private final Scanner mScanner;
     private final PrintStream mOut;
 
-    public App() {
+    public Repl() {
         this(System.in, System.out);
     }
 
-    public App(InputStream in, PrintStream out) {
+    public Repl(InputStream in, PrintStream out) {
         mScanner = new Scanner(in);
         mOut = out;
     }
@@ -46,9 +46,5 @@ public class App {
             System.exit(0);
             return null;
         }
-    }
-
-    public static void main(String[] args) {
-        new App().start();
     }
 }

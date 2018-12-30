@@ -9,7 +9,7 @@ dependencies {
 }
 
 applicationName = 'tinylisp'
-mainClassName = 'org.tinylisp.repl.App'
+mainClassName = 'org.tinylisp.repl.Main'
 
 run {
     standardInput = System.in
