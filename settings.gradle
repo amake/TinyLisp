@@ -1,1 +1,1 @@
-include ':tinylisp', ':repl', ':app'
+include ':engine', ':repl', ':app'
