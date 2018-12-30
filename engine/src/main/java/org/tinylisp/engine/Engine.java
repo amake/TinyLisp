@@ -543,6 +543,10 @@ public class Engine {
         }
         if ("null".equals(token)) {
             return TLJavaObjectExpression.of(null);
+        } else if ("true".equals(token)) {
+            return TLJavaObjectExpression.of(true);
+        } else if ("false".equals(token)) {
+            return TLJavaObjectExpression.of(false);
         } else {
             return TLSymbolExpression.of(token);
         }

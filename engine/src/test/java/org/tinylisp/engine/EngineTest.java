@@ -214,6 +214,24 @@ public class EngineTest {
     }
 
     @Test
+    public void testTrueFalse() throws Exception {
+        assertEquals(true, engine.execute("true", env).getValue());
+        assertEquals(false, engine.execute("false", env).getValue());
+        try {
+            engine.execute("(set true 1)", env);
+            fail("Can't redefine true");
+        } catch (Exception ex) {
+            // Should fail
+        }
+        try {
+            engine.execute("(set false 1)", env);
+            fail("Can't redefine false");
+        } catch (Exception ex) {
+            // Should fail
+        }
+    }
+
+    @Test
     public void testDefaultEnvironment() throws Exception {
         Engine.TLEnvironment stdEnv = Engine.defaultEnvironment();
         // +
