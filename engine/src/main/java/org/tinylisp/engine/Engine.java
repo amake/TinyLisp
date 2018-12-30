@@ -455,23 +455,23 @@ public class Engine {
             }
             // The first item in a list must be a symbol
             TLExpression first = expression.get(0);
-            if (first instanceof TLSymbolExpression && "set".equals(((TLSymbolExpression) first).getValue())) {
+            if (isSymbol(first, "set")) {
                 TLSymbolExpression name = (TLSymbolExpression) expression.get(1);
                 TLExpression value = expression.get(2);
                 TLExpression eValue = evaluate(value, environment);
                 environment.put(name, eValue);
                 return eValue;
-            } else if (first instanceof TLSymbolExpression && "lambda".equals(((TLSymbolExpression) first).getValue())) {
+            } else if (isSymbol(first, "lambda")) {
                 TLListExpression params = (TLListExpression) expression.get(1);
                 TLListExpression body = (TLListExpression) expression.get(2);
                 return TLLambdaFunction.of(params, body, environment, this);
-            } else if (first instanceof TLSymbolExpression && "if".equals(((TLSymbolExpression) first).getValue())) {
+            } else if (isSymbol(first, "if")) {
                 TLExpression condition = expression.get(1);
                 TLExpression then = expression.get(2);
                 TLExpression els = expression.get(3);
                 boolean result = evaluate(condition, environment).asBoolean();
                 return evaluate(result ? then : els, environment);
-            } else if (first instanceof TLSymbolExpression && "quote".equals(((TLSymbolExpression) first).getValue())) {
+            } else if (isSymbol(first, "quote")) {
                 return expression.get(1);
             } else {
                 // First item wasn't a special form so it must evaluate to a function
@@ -600,6 +600,15 @@ public class Engine {
     }
 
     /* Utility functions */
+
+    private static boolean isSymbol(Object obj, String name) {
+        if (obj instanceof TLSymbolExpression) {
+            TLSymbolExpression symbol = (TLSymbolExpression) obj;
+            return name.equals(symbol.getValue());
+        } else {
+            return false;
+        }
+    }
 
     private static String listToString(String prefix, Iterable<?> items, String delimiter, String suffix) {
         StringBuilder builder = new StringBuilder(prefix);
