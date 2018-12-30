@@ -135,6 +135,8 @@ public class EngineTest {
     public void testProgn() throws Exception {
         assertEquals(6, engine.execute("(set x (progn (add 2 8) (add 1 5)))", env).getValue());
         assertEquals(6, engine.execute("x", env).getValue());
+        assertEquals("Implied progn around top-level sexps",
+                6, engine.execute("(add 2 8) (add 1 5)", env).getValue());
     }
 
     @Test

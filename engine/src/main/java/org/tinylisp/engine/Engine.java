@@ -498,7 +498,19 @@ public class Engine {
     }
 
     public TLExpression parse(String input) {
-        return readTokens(tokenize(input));
+        ArrayList<String> tokens = tokenize(input);
+        TLExpression expression = readTokens(tokens);
+        if (tokens.isEmpty()) {
+            return expression;
+        } else {
+            TLListExpression result = new TLListExpression();
+            result.add(TLSymbolExpression.of("progn"));
+            result.add(expression);
+            while (!tokens.isEmpty()) {
+                result.add(readTokens(tokens));
+            }
+            return result;
+        }
     }
 
     private TLExpression readTokens(ArrayList<String> tokens) {
