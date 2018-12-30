@@ -29,7 +29,9 @@ public class TinyLispRepl {
 
     public void init() {
         mOutput.clear();
-        mOutput.print("TinyLisp\n");
+        mOutput.print("TinyLisp ");
+        mOutput.print(Engine.VERSION);
+        mOutput.print("\n");
         mEngine = new Engine();
         mEnv = Engine.defaultEnvironment();
     }

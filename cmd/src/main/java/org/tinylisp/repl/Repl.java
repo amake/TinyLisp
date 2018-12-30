@@ -24,6 +24,8 @@ public class Repl {
     }
 
     public void start() {
+        mOut.print("TinyLisp ");
+        mOut.println(Engine.VERSION);
         while (true) {
             String input = prompt();
             if (input != null) {

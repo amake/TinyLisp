@@ -5,6 +5,8 @@ import java.util.*;
 
 public class Engine {
 
+    public static final String VERSION = Engine.class.getPackage().getImplementationVersion();
+
     public static TLAtomExpression<?> expressionOf(Object value) {
         if (value == null) {
             return TLJavaObjectExpression.of(null);

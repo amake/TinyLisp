@@ -28,3 +28,9 @@ tasks.withType(JavaCompile) {
         options.bootstrapClasspath = files("$java7home/jre/lib/rt.jar")
     }
 }
+
+jar {
+    manifest {
+        attributes 'Implementation-Version': version
+    }
+}
