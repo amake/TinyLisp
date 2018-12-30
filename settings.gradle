@@ -1,1 +1,1 @@
-include ':engine', ':repl', ':app'
+include ':engine', ':cmd', ':app'

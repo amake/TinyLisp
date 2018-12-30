@@ -8,6 +8,7 @@ dependencies {
     testImplementation 'junit:junit:4.12'
 }
 
+applicationName = 'tinylisp'
 mainClassName = 'org.tinylisp.repl.App'
 
 run {
