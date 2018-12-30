@@ -203,6 +203,17 @@ public class EngineTest {
     }
 
     @Test
+    public void testNull() throws Exception {
+        assertNull(engine.execute("null", env).getValue());
+        try {
+            engine.execute("(set null 1)", env);
+            fail("Can't redefine null");
+        } catch (Exception ex) {
+            // Should fail
+        }
+    }
+
+    @Test
     public void testDefaultEnvironment() throws Exception {
         Engine.TLEnvironment stdEnv = Engine.defaultEnvironment();
         // +

@@ -407,7 +407,6 @@ public class Engine {
                 return result;
             }
         });
-        environment.put(TLSymbolExpression.of("null"), expressionOf(null));
         environment.put(TLSymbolExpression.of("nth"), new TLFunction() {
             @Override public TLExpression invoke(TLListExpression args) {
                 int n = (Integer) args.get(0).getValue();
@@ -542,7 +541,11 @@ public class Engine {
         } catch (NumberFormatException ex) {
             // Not a double
         }
-        return TLSymbolExpression.of(token);
+        if ("null".equals(token)) {
+            return TLJavaObjectExpression.of(null);
+        } else {
+            return TLSymbolExpression.of(token);
+        }
     }
 
     public ArrayList<String> tokenize(String input) {
