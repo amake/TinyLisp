@@ -433,6 +433,17 @@ public class Engine {
         public TLExpression alias(TLSymbolExpression from, TLSymbolExpression to) {
             return put(to, get(from));
         }
+        public List<String> complete(String prefix) {
+            List<String> result = new ArrayList<>();
+            for (Engine.TLSymbolExpression symbol : keySet()) {
+                String name = symbol.getValue();
+                if (name.startsWith(prefix)) {
+                    result.add(name);
+                }
+            }
+            Collections.sort(result);
+            return Collections.unmodifiableList(result);
+        }
     }
 
     public TLExpression apply(TLFunction function, TLListExpression arguments) throws Exception {
