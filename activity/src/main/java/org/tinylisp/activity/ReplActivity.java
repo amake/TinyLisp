@@ -19,17 +19,22 @@ import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.tinylisp.engine.Engine;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-public class ReplActivity extends AppCompatActivity implements TextView.OnEditorActionListener, TinyLispRepl.PrintComponent, View.OnClickListener, View.OnKeyListener, TextWatcher {
+public class ReplActivity extends AppCompatActivity implements TextView.OnEditorActionListener, View.OnClickListener, View.OnKeyListener, TextWatcher {
 
     private static final String TAG = "Repl";
 
-    private TinyLispRepl mRepl;
+    private Engine mEngine;
+    private Engine.TLEnvironment mEnv;
+
     private ScrollView mScrollView;
     private TextView mOutput;
     private EditText mInput;
@@ -54,14 +59,184 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
         mTabButton = findViewById(R.id.tab_button);
         mTabButton.setOnClickListener(this);
 
-        mRepl = new TinyLispRepl(this);
-        mRepl.init();
+        mEngine = new Engine();
+        mEnv = Engine.defaultEnvironment();
+        initRepl();
 
         try {
             restoreHistory();
         } catch (Exception ex) {
             Log.d(TAG, "Error restoring history", ex);
         }
+    }
+
+    /* REPL manipulation methods */
+
+    protected void initRepl() {
+        clear();
+        print("TinyLisp ", Engine.VERSION, "\n");
+    }
+
+    protected void print(String... strings) {
+        for (String string : strings) {
+            mOutput.append(string);
+        }
+        mScrollView.post(new Runnable() {
+            @Override public void run() {
+                mScrollView.fullScroll(View.FOCUS_DOWN);
+                mInput.requestFocus();
+            }
+        });
+    }
+
+    protected void clear() {
+        mOutput.setText("");
+    }
+
+    protected void onCompletionTriggered() {
+        int caret = mInput.getSelectionEnd();
+        Editable input = mInput.getText();
+        String before = input.subSequence(0, caret).toString();
+        String after = input.subSequence(caret, input.length()).toString();
+        String completion = complete(before);
+        if (completion != null) {
+            mInput.setText(completion);
+            mInput.append(after);
+            mInput.setSelection(completion.length());
+            mInput.requestFocus();
+        }
+    }
+
+    protected String complete(String input) {
+        List<String> tokens = mEngine.tokenize(input);
+        if (tokens.isEmpty()) {
+            return null;
+        }
+        String stem = tokens.get(tokens.size() - 1);
+        String leading = input.substring(0, input.length() - stem.length());
+        List<String> candidates = mEnv.complete(stem);
+        if (candidates.isEmpty()) {
+            return null;
+        } else if (candidates.size() == 1) {
+            return leading + candidates.get(0) + " ";
+        } else {
+            printCompletionHelp(stem, candidates);
+            String commonPrefix = StringUtils.getCommonPrefix(candidates.toArray(new String[0]));
+            return commonPrefix.isEmpty() ? null : leading + commonPrefix;
+        }
+    }
+
+    protected void printCompletionHelp(String stem, List<String> candidates) {
+        if (stem.isEmpty()) {
+            print("All symbols:\n");
+        } else {
+            print("Symbols starting with ", stem, ":\n");
+        }
+        for (String candidate : candidates) {
+            print("    ", candidate, "\n");
+        }
+    }
+
+    protected void execute(String input) {
+        // echo
+        print("\n> ", input, "\n");
+        try {
+            Engine.TLExpression result = mEngine.execute(input, mEnv);
+            mEnv.put(Engine.TLSymbolExpression.of("_"), result);
+            printObject(result);
+        } catch (Exception ex) {
+            printException(ex);
+        }
+    }
+
+    protected void printObject(Object object) {
+        String repr;
+        if (object instanceof int[]) {
+            repr = Arrays.toString((int[]) object);
+        } else {
+            repr = object.toString();
+        }
+        print(repr, "\n");
+    }
+
+    protected void printException(Exception ex) {
+        print(findInterestingCause(ex).toString(), "\n");
+        ex.printStackTrace();
+    }
+
+    protected Throwable findInterestingCause(Throwable throwable) {
+        while (true) {
+            if (throwable instanceof Engine.TLRuntimeException) {
+                return throwable;
+            }
+            Throwable cause = throwable.getCause();
+            if (cause == null) {
+                return throwable;
+            } else {
+                throwable = cause;
+            }
+        }
+    }
+
+    /* REPL history */
+
+    private static final String HISTORY_KEY = "historyKey";
+    private List<String> history = new ArrayList<>();
+    private Integer index;
+
+    private void appendHistory(String item) {
+        history.add(item);
+        saveHistory();
+    }
+
+    private void saveHistory() {
+        SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(HISTORY_KEY, new JSONArray(history).toString());
+        editor.apply();
+    }
+
+    private void restoreHistory() throws JSONException {
+        history.clear();
+        SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
+        String json = preferences.getString(HISTORY_KEY, null);
+        if (json != null) {
+            JSONArray array = new JSONArray(json);
+            for (int i = 0; i < array.length(); i++) {
+                history.add(array.getString(i));
+            }
+        }
+    }
+
+    private boolean setPreviousHistory() {
+        if (index == null) {
+            index = history.size();
+        }
+        index = Math.max(index - 1, 0);
+        if (index >= 0 && index < history.size()) {
+            String replacement = history.get(index);
+            mInput.setText(replacement);
+            mInput.setSelection(mInput.length());
+            return true;
+        }
+        return false;
+    }
+
+    private boolean setNextHistory() {
+        if (index == null) {
+            index = history.size();
+        }
+        index = Math.min(index + 1, history.size());
+        if (index == history.size()) {
+            mInput.setText(null);
+            return true;
+        } else if (index >= 0 && index < history.size()) {
+            String replacement = history.get(index);
+            mInput.setText(replacement);
+            mInput.setSelection(mInput.length());
+            return true;
+        }
+        return false;
     }
 
     @Override public boolean onCreateOptionsMenu(Menu menu) {
@@ -94,7 +269,7 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
                 String input = v.getText().toString().trim();
                 appendHistory(input);
                 index = null;
-                mRepl.execute(input);
+                execute(input);
                 v.setText("");
                 return true;
             }
@@ -102,69 +277,11 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
         return false;
     }
 
-    /* TinyLispRepl.PrintComponent */
-
-    @Override public void print(String string) {
-        mOutput.append(string);
-        mScrollView.post(new Runnable() {
-            @Override public void run() {
-                mScrollView.fullScroll(View.FOCUS_DOWN);
-                mInput.requestFocus();
-            }
-        });
-    }
-
-    @Override public void clear() {
-        mOutput.setText("");
-    }
-
     /* View.OnClickListener */
 
     @Override public void onClick(View v) {
         if (v == mTabButton) {
-            doCompletion();
-        }
-    }
-
-    private void doCompletion() {
-        int caret = mInput.getSelectionEnd();
-        Editable input = mInput.getText();
-        String before = input.subSequence(0, caret).toString();
-        String after = input.subSequence(caret, input.length()).toString();
-        String completion = mRepl.complete(before);
-        if (completion != null) {
-            mInput.setText(completion);
-            mInput.append(after);
-            mInput.setSelection(completion.length());
-            mInput.requestFocus();
-        }
-    }
-
-    private static final String HISTORY_KEY = "historyKey";
-    private List<String> history = new ArrayList<>();
-    private Integer index;
-
-    private void appendHistory(String item) {
-        history.add(item);
-        saveHistory();
-    }
-
-    private void saveHistory() {
-        SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(HISTORY_KEY, new JSONArray(history).toString());
-        editor.apply();
-    }
-
-    private void restoreHistory() throws JSONException {
-        history.clear();
-        SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
-        String json = preferences.getString(HISTORY_KEY, null);
-        if (json != null) {
-            JSONArray array = new JSONArray(json);
-            for (int i = 0; i < array.length(); i++) {
-                history.add(array.getString(i));
-            }
+            onCompletionTriggered();
         }
     }
 
@@ -190,42 +307,11 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
         } else if (event.getAction() == KeyEvent.ACTION_DOWN) {
             switch (keyCode) {
             case KeyEvent.KEYCODE_TAB:
-                doCompletion();
+                onCompletionTriggered();
                 return true;
             default:
                 return false;
             }
-        }
-        return false;
-    }
-
-    private boolean setPreviousHistory() {
-        if (index == null) {
-            index = history.size();
-        }
-        index = Math.max(index - 1, 0);
-        if (index >= 0 && index < history.size()) {
-            String replacement = history.get(index);
-            mInput.setText(replacement);
-            mInput.setSelection(mInput.length());
-            return true;
-        }
-        return false;
-    }
-
-    private boolean setNextHistory() {
-        if (index == null) {
-            index = history.size();
-        }
-        index = Math.min(index + 1, history.size());
-        if (index == history.size()) {
-            mInput.setText(null);
-            return true;
-        } else if (index >= 0 && index < history.size()) {
-            String replacement = history.get(index);
-            mInput.setText(replacement);
-            mInput.setSelection(mInput.length());
-            return true;
         }
         return false;
     }
