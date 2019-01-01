@@ -32,13 +32,13 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
 
     private static final String TAG = "Repl";
 
-    private Engine mEngine;
-    private Engine.TLEnvironment mEnv;
+    protected Engine mEngine;
+    protected Engine.TLEnvironment mEnv;
 
-    private ScrollView mScrollView;
-    private TextView mOutput;
-    private EditText mInput;
-    private ImageButton mTabButton;
+    protected ScrollView mScrollView;
+    protected TextView mOutput;
+    protected EditText mInput;
+    protected ImageButton mTabButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,11 +142,15 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
         print("\n> ", input, "\n");
         try {
             Engine.TLExpression result = mEngine.execute(input, mEnv);
-            mEnv.put(Engine.TLSymbolExpression.of("_"), result);
-            printObject(result);
+            onExecutionSucceeded(result);
         } catch (Exception ex) {
             printException(ex);
         }
+    }
+
+    protected void onExecutionSucceeded(Engine.TLExpression result) {
+        mEnv.put(Engine.TLSymbolExpression.of("_"), result);
+        printObject(result);
     }
 
     protected void printObject(Object object) {
