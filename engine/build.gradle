@@ -1,5 +1,7 @@
 plugins {
     id 'java-library'
+    id 'maven-publish'
+    id 'com.jfrog.bintray'
 }
 
 dependencies {
@@ -32,5 +34,40 @@ tasks.withType(JavaCompile) {
 jar {
     manifest {
         attributes 'Implementation-Version': version
+    }
+}
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
+}
+
+task javadocJar(type: Jar) {
+    from javadoc.outputs
+}
+
+publishing {
+    publications {
+        myPublication(MavenPublication) {
+            from components.java
+            groupId group
+            artifactId 'engine'
+            version version
+            artifact sourceJar {
+                classifier 'sources'
+            }
+            artifact javadocJar {
+                classifier 'javadoc'
+            }
+        }
+    }
+}
+
+bintray {
+    user = rootProject.findProperty('bintrayUser')
+    key = rootProject.findProperty('bintrayKey')
+    publications = ['myPublication']
+    pkg {
+        repo = 'maven'
+        name = 'tinylisp-engine'
     }
 }
