@@ -1,8 +1,11 @@
 plugins {
     id 'com.android.library'
+    id 'maven-publish'
+    id 'com.jfrog.bintray'
 }
 
 group 'org.tinylisp'
+version '0.1-SNAPSHOT'
 
 android {
     compileSdkVersion 28
@@ -11,7 +14,7 @@ android {
         minSdkVersion 15
         targetSdkVersion 28
         versionCode 1
-        versionName "0.1-SNAPSHOT"
+        versionName version
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -35,4 +38,61 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+}
+
+task sourceJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task javadocJar(type: Jar) {
+    from javadoc.outputs
+}
+
+publishing {
+    publications {
+        myPublication(MavenPublication) {
+            artifact("$buildDir/outputs/aar/activity-release.aar")
+            groupId group
+            artifactId 'activity'
+            version version
+            pom.withXml {
+                def dependenciesNode = asNode().appendNode('dependencies')
+                configurations.implementation.allDependencies.each {
+                    if (it.name != 'unspecified') {
+                        def dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', it.group)
+                        dependencyNode.appendNode('artifactId', it.name)
+                        dependencyNode.appendNode('version', it.version)
+                    }
+                }
+            }
+            artifact sourceJar {
+                classifier 'sources'
+            }
+            artifact javadocJar {
+                classifier 'javadoc'
+            }
+        }
+    }
+}
+
+bintray {
+    user = findProperty('bintrayUser')
+    key = findProperty('bintrayKey')
+    publications = ['myPublication']
+    pkg {
+        repo = 'maven'
+        name = 'tinylisp-activity'
+    }
+}
+
+afterEvaluate {
+    bintrayUpload {
+        dependsOn assembleRelease
+    }
 }
