@@ -23,3 +23,9 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+ext {
+    def props = new Properties()
+    file('local.properties').withInputStream { props.load(it) }
+    props.each { k, v -> set(k, v) }
+}
