@@ -278,8 +278,9 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
                 index = null;
                 execute(input);
                 v.setText("");
-                return true;
             }
+            // Always consume so as to prevent inputting raw \n
+            return true;
         }
         return false;
     }
