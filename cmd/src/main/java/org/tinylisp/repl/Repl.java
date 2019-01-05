@@ -51,7 +51,7 @@ public class Repl {
         mTerminal.writer().printf("TinyLisp %s\n", Engine.VERSION);
         while (true) {
             String input = prompt();
-            if (input != null) {
+            if (input != null && !input.isEmpty()) {
                 try {
                     Engine.TLExpression result = mEngine.execute(input, mEnv);
                     mEnv.put(Engine.TLSymbolExpression.of("_"), result);
