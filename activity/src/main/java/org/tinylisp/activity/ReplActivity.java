@@ -108,6 +108,9 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
     }
 
     protected String complete(String input) {
+        if (input.isEmpty() || Character.isWhitespace(input.charAt(input.length() - 1))) {
+            return null;
+        }
         List<String> tokens = mEngine.tokenize(input);
         if (tokens.isEmpty()) {
             return null;
