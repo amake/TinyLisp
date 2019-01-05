@@ -1,9 +1,12 @@
 package org.tinylisp.repl;
 
+import org.jline.reader.Candidate;
+import org.jline.reader.Completer;
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.UserInterruptException;
+import org.jline.reader.impl.DefaultParser;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.tinylisp.engine.Engine;
@@ -12,10 +15,24 @@ import java.io.IOException;
 
 public class Repl {
 
+    private static class TinyLispParser extends DefaultParser {
+        @Override
+        public boolean isDelimiterChar(CharSequence buffer, int pos) {
+            char c = buffer.charAt(pos);
+            return '(' == c || ')' == c || '[' == c || ']' == c || super.isDelimiterChar(buffer, pos);
+        }
+    }
+
     private final Terminal mTerminal;
     private final LineReader mLineReader;
     private final Engine mEngine = new Engine();
     private final Engine.TLEnvironment mEnv = Engine.defaultEnvironment();
+    private final Completer mCompleter = (reader, line, candidates) -> {
+        String token = line.word().substring(0, line.wordCursor());
+        for (String completion : mEnv.complete(token)) {
+            candidates.add(new Candidate(completion));
+        }
+    };
 
     public Repl() throws IOException {
         mTerminal = TerminalBuilder.builder()
@@ -25,6 +42,8 @@ public class Repl {
         mLineReader = LineReaderBuilder.builder()
                 .appName("TinyLisp")
                 .terminal(mTerminal)
+                .parser(new TinyLispParser())
+                .completer(mCompleter)
                 .build();
     }
 
