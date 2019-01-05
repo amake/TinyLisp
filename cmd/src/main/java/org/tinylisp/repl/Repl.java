@@ -1,52 +1,57 @@
 package org.tinylisp.repl;
 
+import org.jline.reader.EndOfFileException;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.reader.UserInterruptException;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
 import org.tinylisp.engine.Engine;
 
-import java.io.InputStream;
-import java.io.PrintStream;
-import java.util.NoSuchElementException;
-import java.util.Scanner;
+import java.io.IOException;
 
 public class Repl {
 
+    private final Terminal mTerminal;
+    private final LineReader mLineReader;
     private final Engine mEngine = new Engine();
     private final Engine.TLEnvironment mEnv = Engine.defaultEnvironment();
-    private final Scanner mScanner;
-    private final PrintStream mOut;
 
-    public Repl() {
-        this(System.in, System.out);
-    }
-
-    public Repl(InputStream in, PrintStream out) {
-        mScanner = new Scanner(in);
-        mOut = out;
+    public Repl() throws IOException {
+        mTerminal = TerminalBuilder.builder()
+                .name("TinyLisp terminal")
+                .system(true)
+                .build();
+        mLineReader = LineReaderBuilder.builder()
+                .appName("TinyLisp")
+                .terminal(mTerminal)
+                .build();
     }
 
     public void start() {
-        mOut.print("TinyLisp ");
-        mOut.println(Engine.VERSION);
+        mTerminal.writer().printf("TinyLisp %s\n", Engine.VERSION);
         while (true) {
             String input = prompt();
             if (input != null) {
                 try {
                     Engine.TLExpression result = mEngine.execute(input, mEnv);
                     mEnv.put(Engine.TLSymbolExpression.of("_"), result);
-                    mOut.println(result == null ? "" : result);
+                    mTerminal.writer().println(result == null ? "" : result);
                 } catch (Exception ex) {
-                    mOut.println(ex);
+                    mTerminal.writer().println(ex);
                 }
             }
         }
     }
 
     private String prompt() {
-        mOut.print(">>> ");
         try {
-            return mScanner.nextLine();
-        } catch (NoSuchElementException ex) {
+            return mLineReader.readLine(">>> ");
+        } catch (UserInterruptException ex) {
+            // Ignore
+        } catch (EndOfFileException ex) {
             System.exit(0);
-            return null;
         }
+        return null;
     }
 }
