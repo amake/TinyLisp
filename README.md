@@ -17,8 +17,8 @@ Thus the goal of this implementation is to drive a REPL to interact with Java
 objects.
 
 ## Features
-- Basic Lisp things: symbols, lists, strings, numbers, `lambda`, `car`,
-  `cdr`, `cons`, `list`, `quote`, etc.
+- Basic Lisp things: symbols, lists, strings, numbers, `lambda`, `car`, `cdr`,
+  `cons`, `list`, `quote`, etc.
   - Numbers are Java `int` or `double`
 - First-class support for Java arrays: `[1 2 3]` is parsed as `int[]`, `[0.1 0.2
   0.3]` as `double[]`; mixed or other arrays are `Object[]`
