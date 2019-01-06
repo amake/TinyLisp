@@ -30,6 +30,46 @@ objects.
 - [activity](./activity): An Android library providing a TinyLisp REPL activity
 - [app](./app): An Android app for the activity
 
+## Usage
+### Command line
+Binaries are available in
+[Releases](https://github.com/amake/TinyLisp/releases). Run the appropriate
+executable in the `bin` folder.
+
+```sh
+$ echo '(+ 1 2 3)' | ./bin/tinylisp
+6
+$ echo '(+ 1 2 3)' > program.lisp
+$ ./bin/tinylisp program.lisp
+6
+$ ./bin/tinylisp # No args or stdin launches REPL
+```
+
+### Engine
+The TinyLisp engine is available as a Maven-style dependency from JCenter:
+
+```
+implementation 'org.tinylisp:engine:+'
+```
+
+To execute a TinyLisp program, use the `Engine` and `TLEnvironment` classes as
+follows. The result is a `TLExpression`.
+
+```java
+Engine engine = new Engine();
+TLEnvironment env = Engine.defaultEnvironment();
+TLExpression result = engine.execute("(+ 1 2 3)", env); // 6
+```
+
+### Android REPL activity
+The Android REPL activity is also available from JCenter:
+
+```
+implementation 'org.tinylisp:activity:+'
+```
+
+The activity class is `org.tinylisp.activity.ReplActivity`.
+
 ## Limitations
 - The point is to be small and simple, so many standard commands are missing
   (PRs welcome)
