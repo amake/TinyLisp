@@ -31,9 +31,12 @@ tasks.withType(JavaCompile) {
     }
 }
 
-jar {
-    manifest {
-        attributes 'Implementation-Version': version
+processResources {
+    doLast {
+        def versionFile = file("${sourceSets.main.output.resourcesDir}/org/tinylisp/engine/version.properties")
+        ant.propertyfile(file: versionFile) {
+            entry(key: 'version', value: version)
+        }
     }
 }
 
