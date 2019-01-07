@@ -7,5 +7,10 @@
             android:icon="@android:drawable/ic_menu_share"
             android:title="@string/repl_action_share"
             app:showAsAction="ifRoom"/>
+    <item
+            android:id="@+id/action_clear"
+            android:icon="@android:drawable/ic_menu_delete"
+            android:title="@string/repl_action_clear"
+            app:showAsAction="ifRoom"/>
 
 </menu>

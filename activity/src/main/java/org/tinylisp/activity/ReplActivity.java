@@ -255,6 +255,9 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
         if (item.getItemId() == R.id.action_share) {
             shareConsoleLog();
             return true;
+        } else if (item.getItemId() == R.id.action_clear) {
+            clear();
+            return true;
         } else {
             return super.onOptionsItemSelected(item);
         }
