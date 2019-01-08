@@ -42,10 +42,12 @@ processResources {
 
 task sourceJar(type: Jar) {
     from sourceSets.main.allJava
+    classifier = 'sources'
 }
 
 task javadocJar(type: Jar) {
     from javadoc.outputs
+    classifier = 'javadoc'
 }
 
 publishing {
@@ -55,12 +57,8 @@ publishing {
             groupId group
             artifactId 'engine'
             version version
-            artifact sourceJar {
-                classifier 'sources'
-            }
-            artifact javadocJar {
-                classifier 'javadoc'
-            }
+            artifact sourceJar
+            artifact javadocJar
         }
     }
 }
