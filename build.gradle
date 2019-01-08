@@ -26,7 +26,12 @@ task clean(type: Delete) {
 }
 
 ext {
-    def props = new Properties()
-    file('local.properties').withInputStream { props.load(it) }
-    props.each { k, v -> set(k, v) }
+    def propsFile = file('local.properties')
+    if (propsFile.file) {
+        def props = new Properties()
+        propsFile.withInputStream { props.load(it) }
+        props.each { k, v -> set(k, v) }
+    } else {
+        logger.log(LogLevel.WARN, "$propsFile not found")
+    }
 }
