@@ -1,28 +1,11 @@
 package org.tinylisp.engine;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.*;
 
 public class Engine {
 
-    public static final String VERSION;
-    static {
-        InputStream is = Engine.class.getResourceAsStream("version.properties");
-        try { // No try-with-resources to keep Android compatibility
-            Properties properties = new Properties();
-            properties.load(is);
-            VERSION = properties.getProperty("version");
-        } catch (IOException ex) {
-            throw new ExceptionInInitializerError(ex);
-        } finally {
-            try {
-                is.close();
-            } catch (IOException ignored) {
-            }
-        }
-    }
+    public static final String VERSION = "@version@";
 
     public static TLAtomExpression<?> expressionOf(Object value) {
         if (value == null) {

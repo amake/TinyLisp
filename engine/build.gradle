@@ -31,13 +31,16 @@ tasks.withType(JavaCompile) {
     }
 }
 
-processResources {
-    doLast {
-        def versionFile = file("${sourceSets.main.output.resourcesDir}/org/tinylisp/engine/version.properties")
-        ant.propertyfile(file: versionFile) {
-            entry(key: 'version', value: version)
-        }
-    }
+import org.apache.tools.ant.filters.ReplaceTokens
+
+task processSource(type: Copy) {
+    from sourceSets.main.java
+    filter(ReplaceTokens, tokens: [version: version])
+    into "$buildDir/src"
+}
+
+compileJava {
+    source = processSource.outputs
 }
 
 task sourceJar(type: Jar) {
