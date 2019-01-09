@@ -3,6 +3,7 @@ package org.tinylisp.activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -28,6 +29,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -144,18 +146,65 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
         }
     }
 
-    protected void execute(String input) {
+    private ExecuteAsync mExecution;
+
+    protected void executeAsync(String input) {
         // echo
         print("\n> ", input, "\n");
-        try {
-            Engine.TLExpression result = mEngine.execute(input, mEnv);
-            onExecutionSucceeded(result);
-        } catch (Exception ex) {
-            printException(ex);
+        ExecuteAsync prev = mExecution;
+        if (prev != null) {
+            prev.cancel(true);
+        }
+        mExecution = new ExecuteAsync(new WeakReference<>(this), mEngine, mEnv);
+        mExecution.execute(input);
+    }
+
+    private static class ExecuteAsync extends AsyncTask<String, Void, Engine.TLExpression> {
+        private final WeakReference<ReplActivity> mActivity;
+        private final Engine mEngine;
+        private final Engine.TLEnvironment mEnv;
+        private Exception mError;
+
+        ExecuteAsync(WeakReference<ReplActivity> weakActivity, Engine engine, Engine.TLEnvironment env) {
+            mActivity = weakActivity;
+            mEngine = engine;
+            mEnv = env;
+        }
+
+        @Override protected void onPreExecute() {
+            ReplActivity activity = mActivity.get();
+            if (activity != null) {
+                activity.mInput.setEnabled(false);
+            }
+        }
+
+        @Override protected Engine.TLExpression doInBackground(String... strings) {
+            try {
+                return mEngine.execute(strings[0], mEnv);
+            } catch (Exception e) {
+                mError = e;
+            }
+            return null;
+        }
+
+        @Override protected void onPostExecute(Engine.TLExpression result) {
+            if (isCancelled()) {
+                return;
+            }
+            ReplActivity activity = mActivity.get();
+            if (activity != null) {
+                if (mError == null) {
+                    activity.onExecutionSucceeded(result);
+                } else {
+                    activity.printException(mError);
+                }
+                activity.mInput.setEnabled(true);
+            }
         }
     }
 
     protected void onExecutionSucceeded(Engine.TLExpression result) {
+        mExecution = null;
         mEnv.put(Engine.TLSymbolExpression.of("_"), result);
         printObject(result);
     }
@@ -315,7 +364,7 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
                 String input = v.getText().toString().trim();
                 appendHistory(input);
                 index = null;
-                execute(input);
+                executeAsync(input);
                 v.setText("");
             }
             // Always consume so as to prevent inputting raw \n
