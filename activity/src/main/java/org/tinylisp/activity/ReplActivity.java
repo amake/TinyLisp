@@ -16,10 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ScrollView;
-import android.widget.TextView;
+import android.widget.*;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -45,6 +42,7 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
     protected TextView mOutput;
     protected EditText mInput;
     protected ImageButton mTabButton;
+    protected ProgressBar mProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +62,8 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
 
         mTabButton = findViewById(R.id.tab_button);
         mTabButton.setOnClickListener(this);
+
+        mProgress = findViewById(R.id.progress);
 
         mEngine = new Engine();
         mEnv = Engine.defaultEnvironment();
@@ -175,6 +175,7 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
             ReplActivity activity = mActivity.get();
             if (activity != null) {
                 activity.mInput.setEnabled(false);
+                activity.mProgress.setVisibility(View.VISIBLE);
             }
         }
 
@@ -198,6 +199,7 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
                 } else {
                     activity.printException(mError);
                 }
+                activity.mProgress.setVisibility(View.GONE);
                 activity.mInput.setEnabled(true);
             }
         }
