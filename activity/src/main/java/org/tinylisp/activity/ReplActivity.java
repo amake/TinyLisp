@@ -206,17 +206,7 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
     protected void onExecutionSucceeded(Engine.TLExpression result) {
         mExecution = null;
         mEnv.put(Engine.TLSymbolExpression.of("_"), result);
-        printObject(result);
-    }
-
-    protected void printObject(Object object) {
-        String repr;
-        if (object instanceof int[]) {
-            repr = Arrays.toString((int[]) object);
-        } else {
-            repr = object.toString();
-        }
-        print(repr, "\n");
+        print(result.toString(), "\n");
     }
 
     protected void printException(Exception ex) {
