@@ -3,7 +3,7 @@
     <application>
         <provider
                 android:name=".ReplFileProvider"
-                android:authorities="org.tinylisp.activity.fileprovider"
+                android:authorities="${applicationId}.org.tinylisp.activity.fileprovider"
                 android:exported="false"
                 android:grantUriPermissions="true">
             <meta-data

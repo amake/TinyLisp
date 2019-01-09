@@ -322,7 +322,7 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
         try {
             File file = saveConsoleToFile();
             Log.d(TAG, "Saved console content to file: " + file);
-            Uri uri = ReplFileProvider.getUriForFile(this, ReplFileProvider.AUTHORITY, file);
+            Uri uri = ReplFileProvider.getUriForFile(this, file);
             ShareCompat.IntentBuilder.from(this)
                 .setStream(uri)
                 .setType("text/plain")
