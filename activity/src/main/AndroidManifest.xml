@@ -1,2 +1,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.tinylisp.activity" />
+    package="org.tinylisp.activity">
+    <application>
+        <provider
+                android:name=".ReplFileProvider"
+                android:authorities="org.tinylisp.activity.fileprovider"
+                android:exported="false"
+                android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"/>
+        </provider>
+    </application>
+</manifest>

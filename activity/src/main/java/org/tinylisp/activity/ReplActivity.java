@@ -2,6 +2,7 @@ package org.tinylisp.activity;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -18,12 +19,15 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.TextView;
-
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.tinylisp.engine.Engine;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -264,10 +268,42 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
     }
 
     private void shareConsoleLog() {
-        ShareCompat.IntentBuilder.from(this)
-            .setText(mOutput.getText().toString())
-            .setType("text/plain")
-            .startChooser();
+        try {
+            ShareCompat.IntentBuilder.from(this)
+                .setText(mOutput.getText().toString())
+                .setType("text/plain")
+                .startChooser();
+            return;
+        } catch (Exception ex) {
+            // Fails with TransactionTooLargeException when content too big
+            Log.d(TAG, "Sharing console as plain text failed", ex);
+        }
+        try {
+            File file = saveConsoleToFile();
+            Log.d(TAG, "Saved console content to file: " + file);
+            Uri uri = ReplFileProvider.getUriForFile(this, ReplFileProvider.AUTHORITY, file);
+            ShareCompat.IntentBuilder.from(this)
+                .setStream(uri)
+                .setType("text/plain")
+                .startChooser();
+        } catch (IOException ex) {
+            Log.e(TAG, "Failed to save console to file", ex);
+        }
+    }
+
+    private File saveConsoleToFile() throws IOException {
+        File temp = File.createTempFile(getApplication().getPackageName(), ".log", getCacheDir());
+        FileOutputStream out = new FileOutputStream(temp);
+        try {
+            saveConsole(out);
+            return temp;
+        } finally {
+            out.close();
+        }
+    }
+
+    private void saveConsole(OutputStream out) throws IOException {
+        out.write(mOutput.getText().toString().getBytes("utf-8"));
     }
 
     /* TextView.OnEditorActionListener */
