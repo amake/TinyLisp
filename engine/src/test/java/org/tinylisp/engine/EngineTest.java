@@ -5,12 +5,16 @@ import org.junit.Test;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.Collections;
 
 import static org.junit.Assert.*;
 
 public class EngineTest {
+
+    private static double DELTA = 0.0000000000000001;
 
     private Engine engine;
     private Engine.TLEnvironment env;
@@ -251,7 +255,7 @@ public class EngineTest {
                 1.1, engine.execute("(+ 0.1 1)", stdEnv).getValue());
         // -
         assertEquals("Double - Double",
-                0.5 - 0.6, engine.execute("(- 0.5 0.6)", stdEnv).getValue());
+                0.5 - 0.6, (double) engine.execute("(- 0.5 0.6)", stdEnv).getValue(), DELTA);
         assertEquals("Integer - Integer",
                 -1, engine.execute("(- 2 3)", stdEnv).getValue());
         assertEquals("Double - Integer",
@@ -267,7 +271,7 @@ public class EngineTest {
         assertEquals("Double / Double",
                 0.5 / 0.6, engine.execute("(/ 0.5 0.6)", stdEnv).getValue());
         assertEquals("Integer / Integer",
-                1, engine.execute("(/ 3 2)", stdEnv).getValue());
+                1.5, engine.execute("(/ 3 2)", stdEnv).getValue());
         assertEquals("Double / Integer",
                 0.1 / 2, engine.execute("(/ 0.1 2)", stdEnv).getValue());
         // <
@@ -327,5 +331,49 @@ public class EngineTest {
         // nth
         assertEquals(1, engine.execute("(nth 1 [0 1 2])", stdEnv).getValue());
         assertEquals(1, engine.execute("(nth 1 (list 0 1 2))", stdEnv).getValue());
+    }
+
+    @Test
+    public void testBigNumbers() throws Exception {
+        Engine.TLEnvironment stdEnv = Engine.defaultEnvironment();
+        stdEnv.put(Engine.TLSymbolExpression.of("INT_MAX"), Engine.expressionOf(Integer.MAX_VALUE));
+        stdEnv.put(Engine.TLSymbolExpression.of("INT_MIN"), Engine.expressionOf(Integer.MIN_VALUE));
+        stdEnv.put(Engine.TLSymbolExpression.of("LONG_MAX"), Engine.expressionOf(BigDecimal.valueOf(Long.MAX_VALUE)));
+        stdEnv.put(Engine.TLSymbolExpression.of("LONG_MIN"), Engine.expressionOf(BigDecimal.valueOf(Long.MIN_VALUE)));
+        stdEnv.put(Engine.TLSymbolExpression.of("DOUBLE_MAX"), Engine.expressionOf(Double.MAX_VALUE));
+        stdEnv.put(Engine.TLSymbolExpression.of("DOUBLE_MIN"), Engine.expressionOf(Double.MIN_VALUE));
+        BigDecimal intMaxPlusOne = BigDecimal.valueOf(Integer.MAX_VALUE).add(BigDecimal.ONE);
+        assertEquals(intMaxPlusOne, engine.execute("(+ INT_MAX 1)", stdEnv).getValue());
+        BigDecimal intMinMinusOne = BigDecimal.valueOf(Integer.MIN_VALUE).subtract(BigDecimal.ONE);
+        assertEquals(intMinMinusOne, engine.execute("(- INT_MIN 1)", stdEnv).getValue());
+        BigDecimal intMaxTimesTwo = BigDecimal.valueOf(Integer.MAX_VALUE).multiply(BigDecimal.valueOf(2));
+        assertEquals(intMaxTimesTwo, engine.execute("(* 2 INT_MAX)", stdEnv).getValue());
+        BigDecimal intMinTimesTwo = BigDecimal.valueOf(Integer.MIN_VALUE).multiply(BigDecimal.valueOf(2));
+        assertEquals(intMinTimesTwo, engine.execute("(* INT_MIN 2)", stdEnv).getValue());
+        BigDecimal intMaxDivHalf = BigDecimal.valueOf(Integer.MAX_VALUE).divide(BigDecimal.valueOf(0.5), RoundingMode.UP);
+        assertEquals(intMaxDivHalf, engine.execute("(/ INT_MAX 0.5)", stdEnv).getValue());
+        BigDecimal intMinDivHalf = BigDecimal.valueOf(Integer.MIN_VALUE).divide(BigDecimal.valueOf(0.5), RoundingMode.UP);
+        assertEquals(intMinDivHalf, engine.execute("(/ INT_MIN 0.5)", stdEnv).getValue());
+        BigDecimal longMaxPlusOne = BigDecimal.valueOf(Long.MAX_VALUE).add(BigDecimal.ONE);
+        assertEquals(longMaxPlusOne, engine.execute("(+ LONG_MAX 1)", stdEnv).getValue());
+        BigDecimal longMinMinusOne = BigDecimal.valueOf(Long.MIN_VALUE).subtract(BigDecimal.ONE);
+        assertEquals(longMinMinusOne, engine.execute("(- LONG_MIN 1)", stdEnv).getValue());
+        BigDecimal longMaxTimesTwo = BigDecimal.valueOf(Long.MAX_VALUE).multiply(BigDecimal.valueOf(2));
+        assertEquals(longMaxTimesTwo, engine.execute("(* 2 LONG_MAX)", stdEnv).getValue());
+        BigDecimal longMinTimesTwo = BigDecimal.valueOf(Long.MIN_VALUE).multiply(BigDecimal.valueOf(2));
+        assertEquals(longMinTimesTwo, engine.execute("(* LONG_MIN 2)", stdEnv).getValue());
+        BigDecimal longMaxDivHalf = BigDecimal.valueOf(Long.MAX_VALUE).divide(BigDecimal.valueOf(0.5), RoundingMode.UP);
+        assertEquals(longMaxDivHalf, engine.execute("(/ LONG_MAX 0.5)", stdEnv).getValue());
+        BigDecimal longMinDivHalf = BigDecimal.valueOf(Long.MIN_VALUE).divide(BigDecimal.valueOf(0.5), RoundingMode.UP);
+        assertEquals(longMinDivHalf, engine.execute("(/ LONG_MIN 0.5)", stdEnv).getValue());
+        BigDecimal doubleMaxPlusOne = BigDecimal.valueOf(Double.MAX_VALUE).add(BigDecimal.ONE);
+        assertEquals(doubleMaxPlusOne, engine.execute("(+ DOUBLE_MAX 1)", stdEnv).getValue());
+        BigDecimal doubleMaxTimesTwo = BigDecimal.valueOf(Double.MAX_VALUE).multiply(BigDecimal.valueOf(2));
+        assertEquals(Engine.reduceBigDecimal(doubleMaxTimesTwo), engine.execute("(* 2 DOUBLE_MAX)", stdEnv).getValue());
+        BigDecimal doubleMaxDivHalf = BigDecimal.valueOf(Double.MAX_VALUE).divide(BigDecimal.valueOf(0.5), RoundingMode.UP);
+        assertEquals(doubleMaxDivHalf, engine.execute("(/ DOUBLE_MAX 0.5)", stdEnv).getValue());
+        engine.execute("(def fact (lambda (n) (if (<= n 1) 1 (* n (fact (- n 1))))))", stdEnv);
+        assertEquals(new BigDecimal("93326215443944152681699238856266700490715968264381621468592963895217599993229915608941463976156518286253697920827223758251185210916864000000000000000000000000"),
+                engine.execute("(fact 100)", stdEnv).getValue());
     }
 }

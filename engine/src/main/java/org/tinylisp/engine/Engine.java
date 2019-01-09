@@ -1,6 +1,8 @@
 package org.tinylisp.engine;
 
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 public class Engine {
@@ -242,61 +244,45 @@ public class Engine {
         environment.put(TLSymbolExpression.of("+"), new TLFunction() {
             @Override
             public TLExpression invoke(TLListExpression args) {
-                Number result = 0;
+                BigDecimal result = BigDecimal.ZERO;
                 for (TLExpression arg : args) {
-                    Object value = arg.getValue();
-                    if (result instanceof Double || value instanceof Double) {
-                        result = result.doubleValue() + ((Number) value).doubleValue();
-                    } else if (value instanceof Integer) {
-                        result = result.intValue() + (Integer) value;
-                    }
+                    Number value = (Number) arg.getValue();
+                    result = result.add(toBigDecimal(value));
                 }
-                return expressionOf(result);
+                return expressionOf(reduceBigDecimal(result));
             }
         });
         environment.put(TLSymbolExpression.of("-"), new TLFunction() {
             @Override
             public TLExpression invoke(TLListExpression args) {
-                Number result = (Number) args.get(0).getValue();
+                BigDecimal result = toBigDecimal((Number) args.get(0).getValue());
                 for (TLExpression arg : args.subList(1, args.size())) {
-                    Object value = arg.getValue();
-                    if (result instanceof Double || value instanceof Double) {
-                        result = result.doubleValue() - ((Number) value).doubleValue();
-                    } else if (value instanceof Integer) {
-                        result = result.intValue() - (Integer) value;
-                    }
+                    Number value = (Number) arg.getValue();
+                    result = result.subtract(toBigDecimal(value));
                 }
-                return expressionOf(result);
+                return expressionOf(reduceBigDecimal(result));
             }
         });
         environment.put(TLSymbolExpression.of("*"), new TLFunction() {
             @Override
             public TLExpression invoke(TLListExpression args) {
-                Number result = 1;
+                BigDecimal result = BigDecimal.ONE;
                 for (TLExpression arg : args) {
-                    Object value = arg.getValue();
-                    if (result instanceof Double || value instanceof Double) {
-                        result = result.doubleValue() * ((Number) value).doubleValue();
-                    } else if (value instanceof Integer) {
-                        result = result.intValue() * (Integer) value;
-                    }
+                    Number value = (Number) arg.getValue();
+                    result = result.multiply(toBigDecimal(value));
                 }
-                return expressionOf(result);
+                return expressionOf(reduceBigDecimal(result));
             }
         });
         environment.put(TLSymbolExpression.of("/"), new TLFunction() {
             @Override
             public TLExpression invoke(TLListExpression args) {
-                Number result = (Number) args.get(0).getValue();
+                BigDecimal result = toBigDecimal((Number) args.get(0).getValue());
                 for (TLExpression arg : args.subList(1, args.size())) {
-                    Object value = arg.getValue();
-                    if (result instanceof Double || value instanceof Double) {
-                        result = result.doubleValue() / ((Number) value).doubleValue();
-                    } else if (value instanceof Integer) {
-                        result = result.intValue() / (Integer) value;
-                    }
+                    Number value = (Number) arg.getValue();
+                    result = result.divide(toBigDecimal(value), 16, RoundingMode.UP);
                 }
-                return expressionOf(result);
+                return expressionOf(reduceBigDecimal(result));
             }
         });
         environment.put(TLSymbolExpression.of("<"), new TLFunction() {
@@ -656,6 +642,36 @@ public class Engine {
     private static void addIfNotEmpty(List<String> list, String value) {
         if (!value.trim().isEmpty()) {
             list.add(value);
+        }
+    }
+
+    private static BigDecimal toBigDecimal(Number value) {
+        if (value instanceof Double) {
+            return BigDecimal.valueOf(value.doubleValue());
+        } else if (value instanceof Integer) {
+            return BigDecimal.valueOf(value.intValue());
+        } else if (value instanceof BigDecimal) {
+            return (BigDecimal) value;
+        } else {
+            throw new IllegalArgumentException("Unsupported number type: " + value.getClass());
+        }
+    }
+
+    static Number reduceBigDecimal(BigDecimal value) {
+        if (value.signum() == 0 || value.scale() <= 0 || value.stripTrailingZeros().scale() == 0) {
+            try {
+                return value.intValueExact();
+            } catch (ArithmeticException ex) {
+                // Doesn't fit in an int, but is an integer
+                return value.setScale(0, RoundingMode.UNNECESSARY);
+            }
+        } else {
+            double dbl = value.doubleValue();
+            if (!Double.isInfinite(dbl)) {
+                return dbl;
+            } else {
+                return value.stripTrailingZeros();
+            }
         }
     }
 }
