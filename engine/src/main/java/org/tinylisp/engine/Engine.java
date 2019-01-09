@@ -468,7 +468,7 @@ public class Engine {
             }
             // The first item in a list must be a symbol
             TLExpression first = expression.get(0);
-            if (isSymbol(first, "set") || isSymbol(first, "define")) {
+            if (isSymbol(first, "def")) {
                 TLSymbolExpression name = (TLSymbolExpression) expression.get(1);
                 TLExpression value = expression.get(2);
                 TLExpression eValue = evaluate(value, environment);

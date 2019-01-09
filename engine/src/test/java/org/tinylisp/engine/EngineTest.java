@@ -104,9 +104,9 @@ public class EngineTest {
     }
 
     @Test
-    public void testSet() throws Exception {
-        assertEquals("Result of `set' is the value",
-                123, engine.execute("(set foo 123)", env).getValue());
+    public void testDef() throws Exception {
+        assertEquals("Result of `def' is the value",
+                123, engine.execute("(def foo 123)", env).getValue());
         assertTrue(env.containsKey(Engine.TLSymbolExpression.of("foo")));
         assertEquals(Engine.expressionOf(123), env.get(Engine.TLSymbolExpression.of("foo")));
     }
@@ -114,7 +114,7 @@ public class EngineTest {
     @Test
     public void testLambda() throws Exception {
         assertEquals(2, engine.execute("((lambda (x) (add 1 x)) 1)", env).getValue());
-        engine.execute("(set increment (lambda (x) (add 1 x)))", env);
+        engine.execute("(def increment (lambda (x) (add 1 x)))", env);
         assertEquals(5, engine.execute("(increment 4)", env).getValue());
     }
 
@@ -127,13 +127,13 @@ public class EngineTest {
     @Test
     public void testRecursiveReference() throws Exception {
         Engine.TLEnvironment stdEnv = Engine.defaultEnvironment();
-        engine.execute("(set ** (lambda (x y) (if (<= y 0) 1 (* x (** x (- y 1))))))", stdEnv);
+        engine.execute("(def ** (lambda (x y) (if (<= y 0) 1 (* x (** x (- y 1))))))", stdEnv);
         assertEquals(256, engine.execute("(** 2 8)", stdEnv).getValue());
     }
 
     @Test
     public void testProgn() throws Exception {
-        assertEquals(6, engine.execute("(set x (progn (add 2 8) (add 1 5)))", env).getValue());
+        assertEquals(6, engine.execute("(def x (progn (add 2 8) (add 1 5)))", env).getValue());
         assertEquals(6, engine.execute("x", env).getValue());
         assertEquals("Implied progn around top-level sexps",
                 6, engine.execute("(add 2 8) (add 1 5)", env).getValue());
@@ -214,7 +214,7 @@ public class EngineTest {
     public void testNull() throws Exception {
         assertNull(engine.execute("null", env).getValue());
         try {
-            engine.execute("(set null 1)", env);
+            engine.execute("(def null 1)", env);
             fail("Can't redefine null");
         } catch (Exception ex) {
             // Should fail
@@ -226,13 +226,13 @@ public class EngineTest {
         assertEquals(true, engine.execute("true", env).getValue());
         assertEquals(false, engine.execute("false", env).getValue());
         try {
-            engine.execute("(set true 1)", env);
+            engine.execute("(def true 1)", env);
             fail("Can't redefine true");
         } catch (Exception ex) {
             // Should fail
         }
         try {
-            engine.execute("(set false 1)", env);
+            engine.execute("(def false 1)", env);
             fail("Can't redefine false");
         } catch (Exception ex) {
             // Should fail
