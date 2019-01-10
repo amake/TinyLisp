@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ReplActivity extends AppCompatActivity implements TextView.OnEditorActionListener, View.OnClickListener, View.OnKeyListener, TextWatcher {
+public class ReplActivity extends AppCompatActivity implements TextView.OnEditorActionListener, View.OnClickListener, View.OnKeyListener {
 
     private static final String TAG = "Repl";
 
@@ -58,7 +58,7 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
         mInput = findViewById(R.id.input);
         mInput.setOnEditorActionListener(this);
         mInput.setOnKeyListener(this);
-        mInput.addTextChangedListener(this);
+        mInput.addTextChangedListener(inputTextWatcher);
 
         mTabButton = findViewById(R.id.tab_button);
         mTabButton.setOnClickListener(this);
@@ -74,6 +74,12 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
         } catch (Exception ex) {
             Log.d(TAG, "Error restoring history", ex);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mInput.removeTextChangedListener(inputTextWatcher);
     }
 
     /* REPL manipulation methods */
@@ -409,73 +415,77 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
     }
 
     /* TextWatcher */
-
-    @Override public void beforeTextChanged(CharSequence s, final int start, int count, int after) {
-        Log.d(TAG, "Input: beforeTextChanged; s=" + s + "; start=" + start + ", count=" + count + ", after=" + after);
-         if (after == 0 && count == 1 && start + count < s.length()) {
-            // Delete
-            String deleted = s.subSequence(start, start + count).toString();
-            final String next = s.subSequence(start + count, start + count + 1).toString();
-            if ("(".equals(deleted) && ")".equals(next)
-                || "[".equals(deleted) && "]".equals(next)
-                || "\"".equals(deleted) && "\"".equals(next)) {
-                mInput.post(new Runnable() {
-                    @Override public void run() {
-                        deleteAtIndex(next, start);
-                    }
-                });
+    private final TextWatcher inputTextWatcher = new TextWatcher() {
+        @Override public void beforeTextChanged(CharSequence s, final int start, int count, int after) {
+            Log.d(TAG, "Input: beforeTextChanged; s=" + s + "; start=" + start + ", count=" + count + ", after=" + after);
+            if (after == 0 && count == 1 && start + count < s.length()) {
+                // Delete
+                String deleted = s.subSequence(start, start + count).toString();
+                final String next = s.subSequence(start + count, start + count + 1).toString();
+                if ("(".equals(deleted) && ")".equals(next)
+                        || "[".equals(deleted) && "]".equals(next)
+                        || "\"".equals(deleted) && "\"".equals(next)) {
+                    mInput.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            deleteAtIndex(next, start);
+                        }
+                    });
+                }
             }
         }
-    }
-    @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-        Log.d(TAG, "Input: onTextChanged; s=" + s + "; start=" + start + ", before=" + before + ", count=" + count);
-        if (before == 0 && count == 1) {
-            // Insert
-            int end = start + count;
-            String inserted = s.subSequence(start, end).toString();
-            final String next;
-            if (end + 1 <= s.length()) {
-                next = s.subSequence(end, end + 1).toString();
-            } else {
-                next = null;
-            }
-            if (inserted.equals(next) &&
-                    (next.equals(")") || next.equals("]") || next.equals("\""))) {
-                // Skip already-present closing char
-                deleteAtIndex(next, end);
-            } else if ("(".equals(inserted)) {
-                insertAfterCaret(")");
-            } else if ("[".equals(inserted)) {
-                insertAfterCaret("]");
-            } else if ("\"".equals(inserted)) {
-                insertAfterCaret("\"");
+
+        @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+            Log.d(TAG, "Input: onTextChanged; s=" + s + "; start=" + start + ", before=" + before + ", count=" + count);
+            if (before == 0 && count == 1) {
+                // Insert
+                int end = start + count;
+                String inserted = s.subSequence(start, end).toString();
+                final String next;
+                if (end + 1 <= s.length()) {
+                    next = s.subSequence(end, end + 1).toString();
+                } else {
+                    next = null;
+                }
+                if (inserted.equals(next) &&
+                        (next.equals(")") || next.equals("]") || next.equals("\""))) {
+                    // Skip already-present closing char
+                    deleteAtIndex(next, end);
+                } else if ("(".equals(inserted)) {
+                    insertAfterCaret(")");
+                } else if ("[".equals(inserted)) {
+                    insertAfterCaret("]");
+                } else if ("\"".equals(inserted)) {
+                    insertAfterCaret("\"");
+                }
             }
         }
-    }
-    @Override public void afterTextChanged(Editable s) {
-        Log.d(TAG, "Input: afterTextChanged; s=" + s);
-    }
 
-    private void insertAfterCaret(String string) {
-        int caret = mInput.getSelectionEnd();
-        Editable content = mInput.getText();
-        String before = content.subSequence(0, caret).toString();
-        String after = content.subSequence(caret, content.length()).toString();
-        String result = before + string + after;
-        mInput.setText(result);
-        mInput.setSelection(before.length());
-    }
+        @Override public void afterTextChanged(Editable s) {
+            Log.d(TAG, "Input: afterTextChanged; s=" + s);
+        }
 
-    private void deleteAtIndex(String toDelete, int start) {
-        int end = start + toDelete.length();
-        Editable content = mInput.getText();
-        if (start < content.length() && end <= content.length()) {
-            if (content.subSequence(start, end).toString().equals(toDelete)) {
-                StringBuilder builder = new StringBuilder(content);
-                builder.delete(start, end);
-                mInput.setText(builder);
-                mInput.setSelection(start);
+        private void insertAfterCaret(String string) {
+            int caret = mInput.getSelectionEnd();
+            Editable content = mInput.getText();
+            String before = content.subSequence(0, caret).toString();
+            String after = content.subSequence(caret, content.length()).toString();
+            String result = before + string + after;
+            mInput.setText(result);
+            mInput.setSelection(before.length());
+        }
+
+        private void deleteAtIndex(String toDelete, int start) {
+            int end = start + toDelete.length();
+            Editable content = mInput.getText();
+            if (start < content.length() && end <= content.length()) {
+                if (content.subSequence(start, end).toString().equals(toDelete)) {
+                    StringBuilder builder = new StringBuilder(content);
+                    builder.delete(start, end);
+                    mInput.setText(builder);
+                    mInput.setSelection(start);
+                }
             }
         }
-    }
+    };
 }
