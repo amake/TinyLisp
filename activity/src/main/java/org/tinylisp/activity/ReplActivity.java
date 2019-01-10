@@ -181,7 +181,11 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
 
         @Override protected Engine.TLExpression doInBackground(String... strings) {
             try {
-                return mEngine.execute(strings[0], mEnv);
+                long start = System.currentTimeMillis();
+                Engine.TLExpression result = mEngine.execute(strings[0], mEnv);
+                long end = System.currentTimeMillis();
+                Log.d(TAG, "Execution took " + (end - start) + "ms");
+                return result;
             } catch (Exception e) {
                 mError = e;
             }
