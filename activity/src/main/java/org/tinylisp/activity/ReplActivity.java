@@ -2,14 +2,21 @@ package org.tinylisp.activity;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.text.TextWatcher;
+import android.text.style.ReplacementSpan;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -54,6 +61,7 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
         mScrollView = findViewById(R.id.scrollview);
 
         mOutput = findViewById(R.id.output);
+        mOutput.addTextChangedListener(outputTextWatcher);
 
         mInput = findViewById(R.id.input);
         mInput.setOnEditorActionListener(this);
@@ -74,12 +82,16 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
         } catch (Exception ex) {
             Log.d(TAG, "Error restoring history", ex);
         }
+
+        float em = mOutput.getPaint().measureText("m");
+        mTabWidth = Math.round(em * 4);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         mInput.removeTextChangedListener(inputTextWatcher);
+        mOutput.removeTextChangedListener(outputTextWatcher);
     }
 
     /* REPL manipulation methods */
@@ -488,4 +500,53 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
             }
         }
     };
+
+    /* Tab support */
+
+    private static final boolean DEBUG = true;
+    private int mTabWidth;
+
+    private final TextWatcher outputTextWatcher = new TextWatcher() {
+        @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+            tabify(start, start + count);
+        }
+
+        @Override public void afterTextChanged(Editable s) {
+        }
+
+        private void tabify(int start, int end) {
+            Editable text = mOutput.getEditableText();
+            for (int i = start; i < end; i++) {
+                if (text.charAt(i) == '\t') {
+                    text.setSpan(new TabWidthSpan(mTabWidth), i, i + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+            }
+        }
+    };
+
+    private final class TabWidthSpan extends ReplacementSpan {
+        private final int mWidth;
+
+        TabWidthSpan(int width) {
+            mWidth = width;
+        }
+
+        @Override
+        public int getSize(@NonNull Paint paint, CharSequence text, int start, int end, @Nullable Paint.FontMetricsInt fm) {
+            return mWidth;
+        }
+
+        @Override
+        public void draw(@NonNull Canvas canvas, CharSequence text, int start, int end, float x, int top, int y, int bottom, @NonNull Paint paint) {
+            if (DEBUG) {
+                canvas.save();
+                canvas.clipRect(x, top, x + 1, bottom);
+                canvas.drawColor(getResources().getColor(android.R.color.holo_red_dark));
+                canvas.restore();
+            }
+        }
+    }
 }
