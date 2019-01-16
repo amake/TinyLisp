@@ -18,6 +18,11 @@ public class Main {
         return execute(program);
     }
 
+    public static Object execute(InputStream stream) throws Exception {
+        String program = readString(stream);
+        return execute(program);
+    }
+
     public static Object execute(String program) throws Exception {
         Engine engine = new Engine();
         Engine.TLEnvironment env = Engine.defaultEnvironment();
@@ -29,8 +34,7 @@ public class Main {
             Object result = execute(Paths.get(args[0]));
             System.out.println(result);
         } else if (System.in.available() > 0) {
-            String program = readString(System.in);
-            Object result = execute(program);
+            Object result = execute(System.in);
             System.out.println(result);
         } else {
             new Repl().start();
