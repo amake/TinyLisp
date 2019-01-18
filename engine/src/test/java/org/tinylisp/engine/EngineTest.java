@@ -274,6 +274,8 @@ public class EngineTest {
                 1.5, engine.execute("(/ 3 2)", stdEnv).getValue());
         assertEquals("Double / Integer",
                 0.1 / 2, engine.execute("(/ 0.1 2)", stdEnv).getValue());
+        assertEquals("Integer / Integer = Integer",
+            70 / 7, engine.execute("(/ 70 7)", stdEnv).getValue());
         // <
         assertTrue("Double < Double", engine.execute("(< 0.5 0.6)", stdEnv).asBoolean());
         assertFalse("Integer < Integer", engine.execute("(< 3 2)", stdEnv).asBoolean());
@@ -371,7 +373,7 @@ public class EngineTest {
         BigDecimal doubleMaxTimesTwo = BigDecimal.valueOf(Double.MAX_VALUE).multiply(BigDecimal.valueOf(2));
         assertEquals(Engine.reduceBigDecimal(doubleMaxTimesTwo), engine.execute("(* 2 DOUBLE_MAX)", stdEnv).getValue());
         BigDecimal doubleMaxDivHalf = BigDecimal.valueOf(Double.MAX_VALUE).divide(BigDecimal.valueOf(0.5), RoundingMode.UP);
-        assertEquals(doubleMaxDivHalf, engine.execute("(/ DOUBLE_MAX 0.5)", stdEnv).getValue());
+        assertEquals(Engine.reduceBigDecimal(doubleMaxDivHalf), engine.execute("(/ DOUBLE_MAX 0.5)", stdEnv).getValue());
         engine.execute("(def fact (lambda (n) (if (<= n 1) 1 (* n (fact (- n 1))))))", stdEnv);
         assertEquals(new BigDecimal("93326215443944152681699238856266700490715968264381621468592963895217599993229915608941463976156518286253697920827223758251185210916864000000000000000000000000"),
                 engine.execute("(fact 100)", stdEnv).getValue());

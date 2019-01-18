@@ -658,7 +658,7 @@ public class Engine {
     }
 
     static Number reduceBigDecimal(BigDecimal value) {
-        if (value.signum() == 0 || value.scale() <= 0 || value.stripTrailingZeros().scale() == 0) {
+        if (value.signum() == 0 || value.scale() <= 0 || value.stripTrailingZeros().scale() <= 0) {
             try {
                 return value.intValueExact();
             } catch (ArithmeticException ex) {
