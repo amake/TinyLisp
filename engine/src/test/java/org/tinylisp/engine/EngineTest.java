@@ -126,6 +126,8 @@ public class EngineTest {
     public void testIf() throws Exception {
         assertEquals(1, engine.execute("(if (< 1 2) 1 2)", env).getValue());
         assertEquals(2, engine.execute("(if (< 1 2 0) 1 2)", env).getValue());
+        assertEquals("implied progn around else",
+                3, engine.execute("(if (< 1 2 0) 1 2 3)", env).getValue());
     }
 
     @Test

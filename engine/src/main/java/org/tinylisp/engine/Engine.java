@@ -467,7 +467,8 @@ public class Engine {
             } else if (isSymbol(first, "if")) {
                 TLExpression condition = expression.get(1);
                 TLExpression then = expression.get(2);
-                TLExpression els = expression.get(3);
+                TLListExpression els = new TLListExpression(expression.subList(3, expression.size()));
+                els.add(0, TLSymbolExpression.of("progn"));
                 boolean result = evaluate(condition, environment).asBoolean();
                 return evaluate(result ? then : els, environment);
             } else if (isSymbol(first, "quote")) {
