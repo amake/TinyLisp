@@ -216,7 +216,7 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
     protected void onExecutionSucceeded(Engine.TLExpression result) {
         mExecution = null;
         mEnv.put(Engine.TLSymbolExpression.of("_"), result);
-        print(result.toString(), "\n");
+        print(result == null ? "" : result.toString(), "\n");
     }
 
     protected void printException(Exception ex) {
