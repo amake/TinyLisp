@@ -27,7 +27,7 @@ public class Repl {
     private final Terminal mTerminal;
     private final LineReader mLineReader;
     private final Engine mEngine = new Engine();
-    private final Engine.TLEnvironment mEnv = Engine.defaultEnvironment();
+    private Engine.TLEnvironment mEnv;
     private final Completer mCompleter = (reader, line, candidates) -> {
         String token = line.word().substring(0, line.wordCursor());
         for (String completion : mEnv.complete(token)) {
@@ -46,10 +46,23 @@ public class Repl {
                 .parser(new TinyLispParser())
                 .completer(mCompleter)
                 .build();
+        initEnvironment();
+    }
+
+    protected void initEnvironment() {
+        mEnv = Engine.defaultEnvironment();
         mEnv.put(Engine.TLSymbolExpression.of("clear"), new Engine.TLFunction() {
             @Override
             public Engine.TLExpression invoke(Engine.TLListExpression args) {
                 clear();
+                return Engine.expressionOf(null);
+            }
+        });
+        mEnv.put(Engine.TLSymbolExpression.of("reset"), new Engine.TLFunction() {
+            @Override
+            public Engine.TLExpression invoke(Engine.TLListExpression args) {
+                clear();
+                initEnvironment();
                 return Engine.expressionOf(null);
             }
         });
