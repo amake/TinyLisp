@@ -66,7 +66,6 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
         mProgress = findViewById(R.id.progress);
 
         mEngine = new Engine();
-        mEnv = Engine.defaultEnvironment();
         initRepl();
 
         try {
@@ -80,7 +79,12 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
 
     protected void initRepl() {
         clear();
+        initEnvironment();
         print("TinyLisp ", Engine.VERSION, "\n");
+    }
+
+    protected void initEnvironment() {
+        mEnv = Engine.defaultEnvironment();
     }
 
     protected void print(String... strings) {
