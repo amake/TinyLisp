@@ -7,6 +7,7 @@ import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.UserInterruptException;
 import org.jline.reader.impl.DefaultParser;
+import org.jline.reader.impl.LineReaderImpl;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.tinylisp.engine.Engine;
@@ -45,6 +46,19 @@ public class Repl {
                 .parser(new TinyLispParser())
                 .completer(mCompleter)
                 .build();
+        mEnv.put(Engine.TLSymbolExpression.of("clear"), new Engine.TLFunction() {
+            @Override
+            public Engine.TLExpression invoke(Engine.TLListExpression args) {
+                clear();
+                return Engine.expressionOf(null);
+            }
+        });
+    }
+
+    public void clear() {
+        if (mLineReader instanceof LineReaderImpl) {
+            ((LineReaderImpl) mLineReader).clearScreen();
+        }
     }
 
     public void start() {
@@ -55,7 +69,7 @@ public class Repl {
                 try {
                     Engine.TLExpression result = mEngine.execute(input, mEnv);
                     mEnv.put(Engine.TLSymbolExpression.of("_"), result);
-                    mTerminal.writer().println(result == null ? "" : result);
+                    mTerminal.writer().println(result.getValue() == null ? "" : result);
                 } catch (Exception ex) {
                     mTerminal.writer().println(ex);
                 }
