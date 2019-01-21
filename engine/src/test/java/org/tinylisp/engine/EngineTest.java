@@ -131,6 +131,17 @@ public class EngineTest {
     }
 
     @Test
+    public void testLetStar() throws Exception {
+        assertEquals(3, engine.execute("(let* ((foo 1) (bar 2)) (add foo bar))", env).getValue());
+        assertNull(env.get(Engine.TLSymbolExpression.of("foo")));
+        assertNull(env.get(Engine.TLSymbolExpression.of("bar")));
+        assertEquals("Reference previous definitions",
+                3, engine.execute("(let* ((foo 1) (bar (add 1 foo))) (add foo bar))", env).getValue());
+        assertEquals("implied progn around body",
+                1, engine.execute("(let* ((foo 1) (bar (add 1 foo))) (add foo bar) foo)", env).getValue());
+    }
+
+    @Test
     public void testRecursiveReference() throws Exception {
         Engine.TLEnvironment stdEnv = Engine.defaultEnvironment();
         engine.execute("(def ** (lambda (x y) (if (<= y 0) 1 (* x (** x (- y 1))))))", stdEnv);

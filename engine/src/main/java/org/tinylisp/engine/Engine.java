@@ -479,6 +479,17 @@ public class Engine {
                     result = evaluate(exp, environment);
                 }
                 return result;
+            } else if (isSymbol(first, "let*")) {
+                TLListExpression defs = (TLListExpression) expression.get(1);
+                TLListExpression body = new TLListExpression(expression.subList(2, expression.size()));
+                body.add(0, TLSymbolExpression.of("progn"));
+                TLEnvironment localEnvironment = new TLEnvironment(environment);
+                for (TLExpression exp : defs) {
+                    TLListExpression def = (TLListExpression) exp;
+                    TLSymbolExpression symbol = (TLSymbolExpression) def.get(0);
+                    localEnvironment.put(symbol, evaluate(def.get(1), localEnvironment));
+                }
+                return evaluate(body, localEnvironment);
             } else {
                 // First item wasn't a special form so it must evaluate to a function
                 TLFunction function = (TLFunction) evaluate(first, environment);
