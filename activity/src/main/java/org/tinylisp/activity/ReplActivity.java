@@ -85,6 +85,18 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
 
     protected void initEnvironment() {
         mEnv = Engine.defaultEnvironment();
+        mEnv.put(Engine.TLSymbolExpression.of("clear"), new Engine.TLFunction() {
+            @Override
+            public Engine.TLExpression invoke(Engine.TLListExpression args) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        clear();
+                    }
+                });
+                return null;
+            }
+        });
     }
 
     protected void print(String... strings) {
