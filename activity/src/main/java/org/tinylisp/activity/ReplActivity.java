@@ -97,6 +97,18 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
                 return null;
             }
         });
+        mEnv.put(Engine.TLSymbolExpression.of("reset"), new Engine.TLFunction() {
+            @Override
+            public Engine.TLExpression invoke(Engine.TLListExpression args) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        initRepl();
+                    }
+                });
+                return null;
+            }
+        });
     }
 
     protected void print(String... strings) {
