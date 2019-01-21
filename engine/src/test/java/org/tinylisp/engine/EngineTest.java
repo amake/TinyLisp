@@ -143,6 +143,7 @@ public class EngineTest {
         assertEquals(6, engine.execute("x", env).getValue());
         assertEquals("Implied progn around top-level sexps",
                 6, engine.execute("(add 2 8) (add 1 5)", env).getValue());
+        assertNull(engine.execute("(progn)", env).getValue());
     }
 
     @Test

@@ -474,7 +474,7 @@ public class Engine {
             } else if (isSymbol(first, "quote")) {
                 return expression.get(1);
             } else if (isSymbol(first, "progn")) {
-                TLExpression result = null;
+                TLExpression result = expressionOf(null);
                 for (TLExpression exp : expression.subList(1, expression.size())) {
                     result = evaluate(exp, environment);
                 }
