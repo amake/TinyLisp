@@ -94,6 +94,13 @@ public class Engine {
     }
 
     public static class TLListExpression extends ArrayList<TLExpression> implements TLExpression {
+        public static TLListExpression of (Collection<?> items) {
+            TLListExpression list = new TLListExpression();
+            for (Object item : items) {
+                list.add(expressionOf(item));
+            }
+            return list;
+        }
         public TLListExpression() {
             super();
         }
