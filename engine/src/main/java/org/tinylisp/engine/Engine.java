@@ -593,36 +593,37 @@ public class Engine {
 
     public ArrayList<String> tokenize(String input) {
         ArrayList<String> tokens = new ArrayList<>();
+        StringBuilder token = new StringBuilder();
         boolean inString = false;
-        int start = 0;
         for (int i = 0; i < input.length(); i++) {
             char c = input.charAt(i);
             if (inString) {
                 if (c == '"') {
                     inString = false;
-                    tokens.add(input.substring(start, i));
-                    start = i + 1;
+                    tokens.add(token.toString());
+                    token = new StringBuilder();
                     tokens.add(String.valueOf(c));
+                } else {
+                    token.append(c);
                 }
             } else {
-                if (c == '(' || c == ')' || c == '[' || c == ']') {
-                    addIfNotEmpty(tokens, input.substring(start, i));
-                    start = i + 1;
+                if (c == '(' || c == ')' || c == '[' || c == ']' || c == '\'') {
+                    addIfNotEmpty(tokens, token.toString());
+                    token = new StringBuilder();
                     tokens.add(String.valueOf(c));
                 } else if (Character.isWhitespace(c)) {
-                    addIfNotEmpty(tokens, input.substring(start, i));
-                    start = i + 1;
+                    addIfNotEmpty(tokens, token.toString());
+                    token = new StringBuilder();
                 } else if (c == '"') {
                     inString = true;
                     tokens.add(String.valueOf(c));
-                    start = i + 1;
-                } else if (c == '\'') {
-                    tokens.add(String.valueOf(c));
-                    start = i + 1;
+                    token = new StringBuilder();
+                } else {
+                    token.append(c);
                 }
             }
         }
-        addIfNotEmpty(tokens, input.substring(start));
+        addIfNotEmpty(tokens, token.toString());
         return tokens;
     }
 
