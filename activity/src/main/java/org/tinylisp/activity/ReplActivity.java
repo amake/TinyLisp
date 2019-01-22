@@ -117,6 +117,17 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
                 return null;
             }
         });
+        mEnv.put(Engine.TLSymbolExpression.of("history"), new Engine.TLFunction() {
+            @Override
+            public Engine.TLExpression invoke(Engine.TLListExpression args) {
+                if (args.isEmpty()) {
+                    return Engine.TLListExpression.of(mHistory);
+                } else {
+                    int index = ((Integer) args.get(0).getValue() + mHistory.size()) % mHistory.size();
+                    return Engine.expressionOf(mHistory.get(index));
+                }
+            }
+        });
     }
 
     protected void print(String... strings) {
