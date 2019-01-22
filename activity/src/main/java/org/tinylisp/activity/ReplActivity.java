@@ -64,13 +64,14 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
         mProgress = findViewById(R.id.progress);
 
         mEngine = new Engine();
-        initRepl();
 
         try {
             restoreHistory();
         } catch (Exception ex) {
             Log.d(TAG, "Error restoring history", ex);
         }
+
+        initRepl();
     }
 
     /* REPL manipulation methods */
@@ -79,6 +80,7 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
         clear();
         initEnvironment();
         print("TinyLisp ", Engine.VERSION, "\n");
+        mSessionStart = mHistory.size();
     }
 
     protected void initEnvironment() {
@@ -273,6 +275,7 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
     private static final String HISTORY_KEY = "historyKey";
     private List<String> mHistory = new ArrayList<>();
     private Integer mHistoryIndex;
+    private Integer mSessionStart;
 
     private void appendHistory(String item) {
         mHistory.add(item);
