@@ -341,42 +341,42 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
     }
 
     private void shareConsoleLog() {
+        sharePlainText(mOutput.getText().toString());
+    }
+
+    private void sharePlainText(String text) {
         try {
             ShareCompat.IntentBuilder.from(this)
-                .setText(mOutput.getText().toString())
+                .setText(text)
                 .setType("text/plain")
                 .startChooser();
             return;
         } catch (Exception ex) {
             // Fails with TransactionTooLargeException when content too big
-            Log.d(TAG, "Sharing console as plain text failed", ex);
+            Log.d(TAG, "Sharing as plain text failed", ex);
         }
         try {
-            File file = saveConsoleToFile();
-            Log.d(TAG, "Saved console content to file: " + file);
+            File file = saveTextToFile(text);
+            Log.d(TAG, "Saved text to file: " + file);
             Uri uri = ReplFileProvider.getUriForFile(this, file);
             ShareCompat.IntentBuilder.from(this)
                 .setStream(uri)
                 .setType("text/plain")
                 .startChooser();
         } catch (IOException ex) {
-            Log.e(TAG, "Failed to save console to file", ex);
+            Log.e(TAG, "Failed to save text to file", ex);
         }
     }
 
-    private File saveConsoleToFile() throws IOException {
+    private File saveTextToFile(String text) throws IOException {
         File temp = File.createTempFile(getApplication().getPackageName(), ".log", getCacheDir());
         FileOutputStream out = new FileOutputStream(temp);
         try {
-            saveConsole(out);
+            out.write(text.getBytes("utf-8"));
             return temp;
         } finally {
             out.close();
         }
-    }
-
-    private void saveConsole(OutputStream out) throws IOException {
-        out.write(mOutput.getText().toString().getBytes("utf-8"));
     }
 
     /* TextView.OnEditorActionListener */
