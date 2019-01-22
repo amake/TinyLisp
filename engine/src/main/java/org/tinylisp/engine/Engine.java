@@ -128,7 +128,7 @@ public class Engine {
             return value;
         }
         @Override public String toString() {
-            return value instanceof String ? "\"" + value + '"' : String.valueOf(value);
+            return value instanceof String ? "\"" + escapeString((String) value) + '"' : String.valueOf(value);
         }
         @Override public int hashCode() {
             return value != null ? value.hashCode() : 0;
@@ -643,6 +643,18 @@ public class Engine {
     }
 
     /* Utility functions */
+
+    private static String escapeString(String str) {
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (c == '\\' || c == '"') {
+                result.append('\\');
+            }
+            result.append(c);
+        }
+        return result.toString();
+    }
 
     private static boolean isSymbol(Object obj, String name) {
         if (obj instanceof TLSymbolExpression) {

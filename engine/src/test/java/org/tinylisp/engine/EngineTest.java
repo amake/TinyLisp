@@ -211,6 +211,20 @@ public class EngineTest {
         // Program: "\\\""
         // Parsed string: \"
         assertEquals("\\\"", engine.execute("\"\\\\\\\"\"", env).getValue());
+        {
+            // Program: "\""
+            // Parsed string: "
+            // String representation: "\"" (same as program)
+            String program = "\"\\\"\"";
+            assertEquals(program, engine.execute(program, env).toString());
+        }
+        {
+            // Program: "\\\""
+            // Parsed string: \"
+            // String representation: "\\\""
+            String program = "\"\\\\\\\"\"";
+            assertEquals(program, engine.execute(program, env).toString());
+        }
     }
 
     @Test
