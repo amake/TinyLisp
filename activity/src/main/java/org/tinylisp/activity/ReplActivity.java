@@ -128,6 +128,13 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
                 }
             }
         });
+        mEnv.put(Engine.TLSymbolExpression.of("session"), new Engine.TLFunction() {
+            @Override
+            public Engine.TLExpression invoke(Engine.TLListExpression args) {
+                List<String> session = mHistory.subList(mSessionStart, mHistory.size());
+                return Engine.TLListExpression.of(session);
+            }
+        });
     }
 
     protected void print(String... strings) {
