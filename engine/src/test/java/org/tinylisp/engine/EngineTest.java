@@ -160,6 +160,8 @@ public class EngineTest {
     @Test
     public void testQuote() throws Exception {
         assertEquals("foo", engine.execute("(quote foo)", env).getValue());
+        assertEquals("String representation of symbol should not be quoted",
+            "foo", engine.execute("(quote foo)", env).toString());
         assertEquals(Arrays.asList("foo", "bar"), engine.execute("(quote (foo bar))", env).getValue());
         assertEquals(Arrays.asList("foo", "bar", Arrays.asList("baz", "buzz")),
                 engine.execute("(quote (foo bar (baz buzz)))", env).getValue());
@@ -201,6 +203,8 @@ public class EngineTest {
                 engine.execute("(concat \"foo\" \"bar baz\")", env).getValue());
         assertTrue("String return value should wrap to Java object, not symbol",
                 engine.execute("(concat \"foo\" \"bar baz\")", env) instanceof Engine.TLJavaObjectExpression);
+        assertEquals("String representation should be homoiconic",
+            "\"foo\"", engine.execute("\"foo\"", env).toString());
     }
 
     @Test

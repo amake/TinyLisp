@@ -89,7 +89,7 @@ public class Engine {
             return engine.evaluate(body, tempEnv);
         }
         @Override protected List<?> getParameterHelpNames() {
-            return params;
+            return params.getValue();
         }
     }
 
@@ -121,7 +121,7 @@ public class Engine {
             return value;
         }
         @Override public String toString() {
-            return String.valueOf(value);
+            return value instanceof String ? "\"" + value + '"' : String.valueOf(value);
         }
         @Override public int hashCode() {
             return value != null ? value.hashCode() : 0;
@@ -144,6 +144,9 @@ public class Engine {
             TLSymbolExpression symbol = new TLSymbolExpression();
             symbol.value = value;
             return symbol;
+        }
+        @Override public String toString() {
+            return value;
         }
     }
 
