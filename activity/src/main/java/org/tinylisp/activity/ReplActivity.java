@@ -109,6 +109,14 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
                 return null;
             }
         });
+        mEnv.put(Engine.TLSymbolExpression.of("share"), new Engine.TLFunction() {
+            @Override
+            public Engine.TLExpression invoke(Engine.TLListExpression args) {
+                Engine.TLExpression toShare = args.size() == 1 ? args.get(0) : args;
+                sharePlainText(toShare.toString());
+                return null;
+            }
+        });
     }
 
     protected void print(String... strings) {
