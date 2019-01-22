@@ -273,40 +273,40 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
     /* REPL history */
 
     private static final String HISTORY_KEY = "historyKey";
-    private List<String> history = new ArrayList<>();
-    private Integer index;
+    private List<String> mHistory = new ArrayList<>();
+    private Integer mHistoryIndex;
 
     private void appendHistory(String item) {
-        history.add(item);
+        mHistory.add(item);
         saveHistory();
     }
 
     private void saveHistory() {
         SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(HISTORY_KEY, new JSONArray(history).toString());
+        editor.putString(HISTORY_KEY, new JSONArray(mHistory).toString());
         editor.apply();
     }
 
     private void restoreHistory() throws JSONException {
-        history.clear();
+        mHistory.clear();
         SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
         String json = preferences.getString(HISTORY_KEY, null);
         if (json != null) {
             JSONArray array = new JSONArray(json);
             for (int i = 0; i < array.length(); i++) {
-                history.add(array.getString(i));
+                mHistory.add(array.getString(i));
             }
         }
     }
 
     private boolean setPreviousHistory() {
-        if (index == null) {
-            index = history.size();
+        if (mHistoryIndex == null) {
+            mHistoryIndex = mHistory.size();
         }
-        index = Math.max(index - 1, 0);
-        if (index >= 0 && index < history.size()) {
-            String replacement = history.get(index);
+        mHistoryIndex = Math.max(mHistoryIndex - 1, 0);
+        if (mHistoryIndex >= 0 && mHistoryIndex < mHistory.size()) {
+            String replacement = mHistory.get(mHistoryIndex);
             mInput.setText(replacement);
             mInput.setSelection(mInput.length());
             return true;
@@ -315,15 +315,15 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
     }
 
     private boolean setNextHistory() {
-        if (index == null) {
-            index = history.size();
+        if (mHistoryIndex == null) {
+            mHistoryIndex = mHistory.size();
         }
-        index = Math.min(index + 1, history.size());
-        if (index == history.size()) {
+        mHistoryIndex = Math.min(mHistoryIndex + 1, mHistory.size());
+        if (mHistoryIndex == mHistory.size()) {
             mInput.setText(null);
             return true;
-        } else if (index >= 0 && index < history.size()) {
-            String replacement = history.get(index);
+        } else if (mHistoryIndex >= 0 && mHistoryIndex < mHistory.size()) {
+            String replacement = mHistory.get(mHistoryIndex);
             mInput.setText(replacement);
             mInput.setSelection(mInput.length());
             return true;
@@ -395,7 +395,7 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
             if (v.length() > 0) {
                 String input = v.getText().toString().trim();
                 appendHistory(input);
-                index = null;
+                mHistoryIndex = null;
                 executeAsync(input);
                 v.setText("");
             }
