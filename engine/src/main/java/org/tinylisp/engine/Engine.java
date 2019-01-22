@@ -250,7 +250,8 @@ public class Engine {
     }
 
     public static TLEnvironment defaultEnvironment() {
-        TLEnvironment environment = new TLEnvironment();
+        final TLEnvironment environment = new TLEnvironment();
+        final Engine engine = new Engine();
         environment.put(TLSymbolExpression.of("+"), new TLFunction() {
             @Override
             public TLExpression invoke(TLListExpression args) {
@@ -414,6 +415,32 @@ public class Engine {
                 } else {
                     return ((TLListExpression) listOrArray).get(n);
                 }
+            }
+        });
+        environment.put(TLSymbolExpression.of("eval"), new TLFunction() {
+            @Override public TLExpression invoke(TLListExpression args) throws Exception {
+                return engine.evaluate(args.get(0), environment);
+            }
+        });
+        environment.put(TLSymbolExpression.of("parse"), new TLFunction() {
+            @Override public TLExpression invoke(TLListExpression args) throws Exception {
+                return engine.parse((String) args.get(0).getValue());
+            }
+        });
+        environment.put(TLSymbolExpression.of("apply"), new TLFunction() {
+            @Override public TLExpression invoke(TLListExpression args) throws Exception {
+                TLListExpression applyArgs = new TLListExpression(args.subList(1, args.size()));
+                TLExpression last = applyArgs.get(applyArgs.size() - 1);
+                if (last instanceof TLListExpression) {
+                    applyArgs.remove(applyArgs.size() - 1);
+                    applyArgs.addAll((TLListExpression) last);
+                }
+                return engine.apply((TLFunction) args.get(0), applyArgs);
+            }
+        });
+        environment.put(TLSymbolExpression.of("exec"), new TLFunction() {
+            @Override public TLExpression invoke(TLListExpression args) throws Exception {
+                return engine.execute((String) args.get(0).getValue(), environment);
             }
         });
         return environment;
