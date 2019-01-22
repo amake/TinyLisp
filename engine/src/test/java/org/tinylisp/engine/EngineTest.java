@@ -205,6 +205,12 @@ public class EngineTest {
                 engine.execute("(concat \"foo\" \"bar baz\")", env) instanceof Engine.TLJavaObjectExpression);
         assertEquals("String representation should be homoiconic",
             "\"foo\"", engine.execute("\"foo\"", env).toString());
+        // Program: "\""
+        // Parsed string: "
+        assertEquals("\"", engine.execute("\"\\\"\"", env).getValue());
+        // Program: "\\\""
+        // Parsed string: \"
+        assertEquals("\\\"", engine.execute("\"\\\\\\\"\"", env).getValue());
     }
 
     @Test
