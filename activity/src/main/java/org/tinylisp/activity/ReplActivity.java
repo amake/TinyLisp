@@ -25,10 +25,8 @@ import org.tinylisp.engine.Engine;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ReplActivity extends AppCompatActivity implements TextView.OnEditorActionListener, View.OnClickListener, View.OnKeyListener, TextWatcher {
