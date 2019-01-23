@@ -13,8 +13,8 @@ applicationName = 'tinylisp'
 mainClassName = 'org.tinylisp.repl.Main'
 version = '0.3-SNAPSHOT'
 
-sourceCompatibility = "8"
-targetCompatibility = "8"
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 run {
     standardInput = System.in

@@ -11,8 +11,6 @@ dependencies {
 group 'org.tinylisp'
 version '0.3-SNAPSHOT'
 
-sourceCompatibility = "7"
-targetCompatibility = "7"
 
 ext {
     findJavaHome = { version ->
@@ -30,6 +28,8 @@ tasks.withType(JavaCompile) {
         options.bootstrapClasspath = files("$java7home/jre/lib/rt.jar")
     }
 }
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
 
 import org.apache.tools.ant.filters.ReplaceTokens
 
