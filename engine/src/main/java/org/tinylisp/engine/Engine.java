@@ -639,16 +639,13 @@ public class Engine {
                     token.append(c);
                 }
             } else {
-                if (c == '(' || c == ')' || c == '[' || c == ']' || c == '\'' || Character.isWhitespace(c)) {
+                if (isBreakingChar(c)) {
                     if (token.length() > 0) {
                         tokens.add(token.toString());
                         token = new StringBuilder();
                     }
                     tokens.add(String.valueOf(c));
-                } else if (c == '"') {
-                    inString = true;
-                    tokens.add(String.valueOf(c));
-                    token = new StringBuilder();
+                    inString = c == '"';
                 } else {
                     token.append(c);
                 }
@@ -673,6 +670,10 @@ public class Engine {
     }
 
     /* Utility functions */
+
+    private boolean isBreakingChar(char c) {
+        return c == '(' || c == ')' || c == '[' || c == ']' || c == '\'' || c == '"' || Character.isWhitespace(c);
+    }
 
     private static String escapeString(String str) {
         StringBuilder result = new StringBuilder();
