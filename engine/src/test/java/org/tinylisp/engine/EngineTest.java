@@ -188,6 +188,16 @@ public class EngineTest {
     }
 
     @Test
+    public void testComment() throws Exception {
+        assertEquals(Arrays.asList(";", " (a b c)"), engine.tokenize("; (a b c)"));
+        assertEquals(Arrays.asList(";", " (a b c)\n", "(", "1", " ", "2", " ", "3", ")"),
+                engine.tokenize("; (a b c)\n(1 2 3)"));
+        assertEquals(Arrays.asList("foo", " ", ";", " bar"), engine.tokenize("foo ; bar"));
+        assertEquals(Arrays.asList("foo", " ", ";", "bar\n", "baz"), engine.tokenize("foo ;bar\nbaz"));
+        assertEquals(6, engine.execute("(add ; blah\n1 2 3)", env).getValue());
+    }
+
+    @Test
     public void testString() throws Exception {
         assertTrue("String should parse to Java object, not symbol",
                 engine.execute("\"foo\"", env) instanceof Engine.TLJavaObjectExpression);

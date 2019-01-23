@@ -568,6 +568,10 @@ public class Engine {
                 throw new IllegalArgumentException("End of token list");
             }
             token = tokens.remove(0);
+            if (";".equals(token)) {
+                tokens.remove(0); // throw away comment content
+                token = tokens.remove(0);
+            }
         } while (token.trim().isEmpty());
         if ("(".equals(token)) {
             TLListExpression expression = new TLListExpression();
@@ -625,6 +629,7 @@ public class Engine {
         ArrayList<String> tokens = new ArrayList<>();
         StringBuilder token = new StringBuilder();
         boolean inString = false;
+        boolean inComment = false;
         for (int i = 0; i < input.length(); i++) {
             char c = input.charAt(i);
             if (inString) {
@@ -638,6 +643,15 @@ public class Engine {
                 } else {
                     token.append(c);
                 }
+            } else if (inComment) {
+                if (c == '\n' || i == input.length() - 1) {
+                    inComment = false;
+                    token.append(c);
+                    tokens.add(token.toString());
+                    token = new StringBuilder();
+                } else {
+                    token.append(c);
+                }
             } else {
                 if (isBreakingChar(c)) {
                     if (token.length() > 0) {
@@ -646,6 +660,7 @@ public class Engine {
                     }
                     tokens.add(String.valueOf(c));
                     inString = c == '"';
+                    inComment = c == ';';
                 } else {
                     token.append(c);
                 }
@@ -672,7 +687,7 @@ public class Engine {
     /* Utility functions */
 
     private boolean isBreakingChar(char c) {
-        return c == '(' || c == ')' || c == '[' || c == ']' || c == '\'' || c == '"' || Character.isWhitespace(c);
+        return c == '(' || c == ')' || c == '[' || c == ']' || c == '\'' || c == '"' || c == ';' || Character.isWhitespace(c);
     }
 
     private static String escapeString(String str) {
