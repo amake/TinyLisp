@@ -562,10 +562,13 @@ public class Engine {
     }
 
     private TLExpression readTokens(ArrayList<String> tokens) {
-        if (tokens.isEmpty()) {
-            throw new IllegalArgumentException("End of token list");
-        }
-        String token = tokens.remove(0);
+        String token;
+        do {
+            if (tokens.isEmpty()) {
+                throw new IllegalArgumentException("End of token list");
+            }
+            token = tokens.remove(0);
+        } while (token.trim().isEmpty());
         if ("(".equals(token)) {
             TLListExpression expression = new TLListExpression();
             while (!")".equals(tokens.get(0))) {
@@ -637,13 +640,12 @@ public class Engine {
                     token.append(c);
                 }
             } else {
-                if (c == '(' || c == ')' || c == '[' || c == ']' || c == '\'') {
-                    addIfNotEmpty(tokens, token.toString());
-                    token = new StringBuilder();
+                if (c == '(' || c == ')' || c == '[' || c == ']' || c == '\'' || Character.isWhitespace(c)) {
+                    if (token.length() > 0) {
+                        tokens.add(token.toString());
+                        token = new StringBuilder();
+                    }
                     tokens.add(String.valueOf(c));
-                } else if (Character.isWhitespace(c)) {
-                    addIfNotEmpty(tokens, token.toString());
-                    token = new StringBuilder();
                 } else if (c == '"') {
                     inString = true;
                     tokens.add(String.valueOf(c));
@@ -653,7 +655,9 @@ public class Engine {
                 }
             }
         }
-        addIfNotEmpty(tokens, token.toString());
+        if (token.length() > 0) {
+            tokens.add(token.toString());
+        }
         return tokens;
     }
 
@@ -702,12 +706,6 @@ public class Engine {
         }
         builder.append(suffix);
         return builder.toString();
-    }
-
-    private static void addIfNotEmpty(List<String> list, String value) {
-        if (!value.trim().isEmpty()) {
-            list.add(value);
-        }
     }
 
     private static BigDecimal toBigDecimal(Number value) {

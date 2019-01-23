@@ -177,14 +177,14 @@ public class EngineTest {
     @Test
     public void testTokenize() {
         assertEquals(Collections.singletonList("foo"), engine.tokenize("foo"));
-        assertEquals(Arrays.asList("(", "a", "b", "c", ")"), engine.tokenize("(a b c)"));
-        assertEquals(Arrays.asList("(", "a", "b", "c", ")"), engine.tokenize("( a b c ) "));
-        assertEquals(Arrays.asList("(", "a", "b", "[", "c", "]", ")"), engine.tokenize("(a b [c])"));
-        assertEquals(Arrays.asList("(", "a", "b", "\"", "foo bar", "\"", ")"),
+        assertEquals(Arrays.asList("(", "a", " ", "b", " ", "c", ")"), engine.tokenize("(a b c)"));
+        assertEquals(Arrays.asList("(", " ", "a", " ", "b", " ", "c", " ", ")", " "), engine.tokenize("( a b c ) "));
+        assertEquals(Arrays.asList("(", "a", " ", "b", " ", "[", "c", "]", ")"), engine.tokenize("(a b [c])"));
+        assertEquals(Arrays.asList("(", "a", " ", "b", " ", "\"", "foo bar", "\"", ")"),
                 engine.tokenize("(a b \"foo bar\")"));
-        assertEquals(Arrays.asList("(", "a", "b", "\"", "  ", "\"", ")"),
+        assertEquals(Arrays.asList("(", "a", " ", "b", " ", "\"", "  ", "\"", ")"),
                 engine.tokenize("(a b \"  \")"));
-        assertEquals(Arrays.asList("'", "(", "a", "b", "c", ")"), engine.tokenize("'(a b c)"));
+        assertEquals(Arrays.asList("'", "(", "a", " ", "b", " ", "c", ")"), engine.tokenize("'(a b c)"));
     }
 
     @Test
