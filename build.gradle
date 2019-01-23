@@ -26,6 +26,15 @@ task clean(type: Delete) {
 }
 
 ext {
+    findJavaHome = { version ->
+        try {
+            "/usr/libexec/java_home -f -v $version".execute().getText().trim()
+        } catch (ignored) {
+            null
+        }
+    }
+    java7home = System.env.getOrDefault('JAVA7_HOME', findJavaHome("1.7"))
+
     def propsFile = file('local.properties')
     if (propsFile.file) {
         def props = new Properties()
@@ -33,5 +42,17 @@ ext {
         props.each { k, v -> set(k, v) }
     } else {
         logger.log(LogLevel.WARN, "$propsFile not found")
+    }
+}
+
+gradle.projectsEvaluated {
+    subprojects {
+        if (findProperty("sourceCompatibility") == JavaVersion.VERSION_1_7) {
+            tasks.withType(JavaCompile) {
+                if (java7home) {
+                    options.bootstrapClasspath = files("$java7home/jre/lib/rt.jar")
+                }
+            }
+        }
     }
 }

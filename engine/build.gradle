@@ -11,23 +11,6 @@ dependencies {
 group 'org.tinylisp'
 version '0.3-SNAPSHOT'
 
-
-ext {
-    findJavaHome = { version ->
-        try {
-            "/usr/libexec/java_home -f -v $version".execute().getText().trim()
-        } catch (ignored) {
-            null
-        }
-    }
-    java7home = System.env.getOrDefault('JAVA7_HOME', findJavaHome("1.7"))
-}
-
-tasks.withType(JavaCompile) {
-    if (java7home) {
-        options.bootstrapClasspath = files("$java7home/jre/lib/rt.jar")
-    }
-}
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
