@@ -634,8 +634,7 @@ public class Engine {
                     token = new StringBuilder();
                     tokens.add(String.valueOf(c));
                 } else if (c == '\\') {
-                    i++;
-                    token.append(input.charAt(i));
+                    token.append(input.charAt(++i));
                 } else {
                     token.append(c);
                 }
