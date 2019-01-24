@@ -127,12 +127,12 @@ public class Formatter {
     }
 
     private static boolean isWhitespace(TLToken token) {
-        if (!(token instanceof TLAtomToken)) {
-            return false;
-        }
-        String value = ((TLAtomToken) token).value;
-        for (int i = 0; i < value.length(); i++) {
-            if (!Character.isWhitespace(value.charAt(i))) {
+        return token instanceof TLAtomToken && isWhitespace(((TLAtomToken) token).value);
+    }
+
+    private static boolean isWhitespace(String str) {
+        for (int i = 0; i < str.length(); i++) {
+            if (!Character.isWhitespace(str.charAt(i))) {
                 return false;
             }
         }
