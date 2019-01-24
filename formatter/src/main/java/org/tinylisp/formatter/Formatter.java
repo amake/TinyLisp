@@ -9,7 +9,7 @@ import java.util.List;
 public class Formatter {
 
     private final Engine mEngine = new Engine();
-    private List<Visitor> mVisitors = new ArrayList<>(Arrays.asList(LET_FORMATTER, IF_FORMATTER));
+    private List<Visitor> mVisitors = new ArrayList<>(Arrays.asList(WHITESPACE_NORMALIZER, LET_FORMATTER, IF_FORMATTER));
 
     public String format(String program) {
         TLToken token = parse(program);
@@ -22,6 +22,31 @@ public class Formatter {
     public void addVisitor(Visitor visitor) {
         mVisitors.add(visitor);
     }
+
+    private static final Visitor WHITESPACE_NORMALIZER = new Visitor() {
+        @Override
+        public void visit(TLAggregateToken parent, TLToken child, int depth) {
+            if (isWhitespace(child)) {
+                ((TLAtomToken) child).value = " ";
+            } else if (child instanceof TLAggregateToken) {
+                removeConsecutiveWhitespace((TLAggregateToken) child);
+            }
+        }
+        private void removeConsecutiveWhitespace(TLAggregateToken aggregate) {
+            for (int i = 0; i < aggregate.size(); i++) {
+                if (isWhitespace(aggregate.get(i))) {
+                    for (int j = i + 1; j < aggregate.size(); j++) {
+                        if (isWhitespace(aggregate.get(j))) {
+                            aggregate.remove(j--);
+                        } else {
+                            i = j;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    };
 
     private static final Visitor LET_FORMATTER = new Visitor() {
         @Override public void visit(TLAggregateToken parent, TLToken child, int depth) {

@@ -24,4 +24,14 @@ public class FormatterTest {
         assertEquals("(let ((a 1)\n      (b 2))\n (if (> a b)\n    'foo\n   'bar))",
                 formatter.format("(let ((a 1) (b 2)) (if (> a b) 'foo 'bar))"));
     }
+
+    @Test public void testPartialInput() {
+        Formatter formatter = new Formatter();
+        assertEquals("(if a\n )", formatter.format("(if a )"));
+    }
+
+    @Test public void testIdempotency() {
+        Formatter formatter = new Formatter();
+        assertEquals("(if a\n )", formatter.format("(if a\n )"));
+    }
 }
