@@ -28,6 +28,7 @@ public class FormatterTest {
     @Test public void testPartialInput() {
         Formatter formatter = new Formatter();
         assertEquals("(if a\n )", formatter.format("(if a )"));
+        assertEquals("(if a", formatter.format("(if a"));
     }
 
     @Test public void testIdempotency() {

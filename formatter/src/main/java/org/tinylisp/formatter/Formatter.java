@@ -5,14 +5,24 @@ import org.tinylisp.engine.Engine;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Formatter {
+
+    private static final Logger LOGGER = Logger.getLogger(Formatter.class.getName());
 
     private final Engine mEngine = new Engine();
     private List<Visitor> mVisitors = new ArrayList<>(Arrays.asList(WHITESPACE_NORMALIZER, LET_FORMATTER, IF_FORMATTER));
 
     public String format(String program) {
-        TLToken token = parse(program);
+        TLToken token;
+        try {
+            token = parse(program);
+        } catch (IndexOutOfBoundsException ex) {
+            LOGGER.log(Level.FINE, "Failed to format input", ex);
+            return program;
+        }
         for (Visitor visitor : mVisitors) {
             walkTree(null, token, 0, visitor);
         }
