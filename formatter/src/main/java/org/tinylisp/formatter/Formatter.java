@@ -55,6 +55,11 @@ public class Formatter {
         }
         private void formatIf(TLAggregateToken ifExpr) {
             linebreakAfterRest(ifExpr, 2);
+            // Indent consequent if present
+            if (countNonWhitespace(ifExpr) > 4) {
+                int consequentIdx = indexOfNthNonWhitespace(ifExpr, 3);
+                ifExpr.add(consequentIdx, new TLAtomToken(" "));
+            }
         }
     };
 
@@ -71,6 +76,15 @@ public class Formatter {
         } else {
             aggregate.add(idx, linebreak);
         }
+    }
+
+    private static int indexOfNthNonWhitespace(TLAggregateToken aggregate, int n) {
+        for (int i = 0; i < aggregate.size(); i++) {
+            if (!isWhitespace(aggregate.get(i)) && n-- == 0) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     private static int countNonWhitespace(TLAggregateToken aggregate) {
