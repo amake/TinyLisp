@@ -21,7 +21,7 @@ public class Formatter {
         return token.toString();
     }
 
-    private interface Visitor {
+    public interface Visitor {
         void visit(TLToken token);
     }
 
@@ -40,11 +40,11 @@ public class Formatter {
         return readTokens(tokens);
     }
 
-    private interface TLToken {
+    public interface TLToken {
     }
 
-    private static class TLAtomToken implements TLToken {
-        private String value;
+    public static class TLAtomToken implements TLToken {
+        public String value;
         TLAtomToken(String value) {
             this.value = value;
         }
@@ -53,7 +53,7 @@ public class Formatter {
         }
     }
 
-    private static class TLAggregateToken extends ArrayList<TLToken> implements TLToken {
+    public static class TLAggregateToken extends ArrayList<TLToken> implements TLToken {
         @Override public String toString() {
             StringBuilder builder = new StringBuilder();
             for (TLToken token : this) {
