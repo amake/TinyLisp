@@ -155,6 +155,10 @@ public class Formatter {
         return token instanceof TLAggregateToken && isAtom(((TLAggregateToken) token).get(0), ";");
     }
 
+    private static boolean isQuoted(TLToken token) {
+        return token instanceof TLAggregateToken && isAtom(((TLAggregateToken) token).get(0), "'");
+    }
+
     private static boolean isNewline(TLToken token) {
         return token instanceof TLAtomToken && ((TLAtomToken) token).value.equals("\n");
     }
@@ -241,6 +245,14 @@ public class Formatter {
             if (!tokens.isEmpty()) {
                 expression.add(new TLAtomToken(tokens.remove(0)));
             }
+            return expression;
+        } else if ("'".equals(token)) {
+            TLAggregateToken expression = new TLAggregateToken();
+            expression.add(new TLAtomToken(token));
+            while (isWhitespace(tokens.get(0))) {
+                expression.add(new TLAtomToken(tokens.remove(0)));
+            }
+            expression.add(readTokens(tokens));
             return expression;
         } else {
             return new TLAtomToken(token);
