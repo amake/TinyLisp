@@ -17,9 +17,11 @@ public class FormatterTest {
         assertEquals("(!a! !b! !c!)!", formatter.format("(a b c)"));
         formatter = new Formatter();
         assertEquals("(let ((foo (+ 1 1)))\n (bar)\n (baz))", formatter.format("(let ((foo (+ 1 1))) (bar) (baz))"));
-        assertEquals("(let ((foo 1)\n (bar 2))\n (baz)\n (buzz))", formatter.format("(let ((foo 1) (bar 2)) (baz) (buzz))"));
+        assertEquals("(let ((foo 1)\n      (bar 2))\n (baz)\n (buzz))", formatter.format("(let ((foo 1) (bar 2)) (baz) (buzz))"));
         assertEquals("(let ((foo (+ 1 1)))\n (bar)\n (baz))", formatter.format("(let ((foo (+ 1 1))) (bar) (baz))"));
         assertEquals("(if a\n  b)", formatter.format("(if a b)"));
         assertEquals("(if a\n  b\n c\n d)", formatter.format("(if a b c d)"));
+        assertEquals("(let ((a 1)\n      (b 2))\n (if (> a b)\n    'foo\n   'bar))",
+                formatter.format("(let ((a 1) (b 2)) (if (> a b) 'foo 'bar))"));
     }
 }

@@ -210,9 +210,11 @@ public class Formatter {
             return builder.toString();
         }
         @Override public void append(StringBuilder builder) {
-            int indent = builder.length() + 1;
+            int lastNewLine = builder.lastIndexOf("\n");
+            int lineStart = lastNewLine == -1 ? 0 : lastNewLine;
+            int indent = builder.length() - lineStart + 1;
             for (TLToken token : this) {
-                builder.append(token.toString());
+                token.append(builder);
                 if (isNewline(token)) {
                     for (int i = 0; i < indent; i++) {
                         builder.append(' ');
