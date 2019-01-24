@@ -113,7 +113,16 @@ public class Formatter {
     }
 
     private static boolean isWhitespace(TLToken token) {
-        return token instanceof TLAtomToken && ((TLAtomToken) token).value.trim().isEmpty();
+        if (!(token instanceof TLAtomToken)) {
+            return false;
+        }
+        String value = ((TLAtomToken) token).value;
+        for (int i = 0; i < value.length(); i++) {
+            if (!Character.isWhitespace(value.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static boolean isList(TLToken token) {
