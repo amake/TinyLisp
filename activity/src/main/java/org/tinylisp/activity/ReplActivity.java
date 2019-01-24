@@ -466,7 +466,10 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
     /* TextWatcher */
 
     @Override public void beforeTextChanged(CharSequence s, final int start, int count, int after) {
-        Log.d(TAG, "Input: beforeTextChanged; s=" + s + "; start=" + start + ", count=" + count + ", after=" + after);
+         Log.d(TAG, "Input: beforeTextChanged; s=" + s + "; start=" + start + ", count=" + count + ", after=" + after);
+         if (mProgrammaticEditInProgress) {
+             return;
+         }
          if (after == 0 && count == 1 && start + count < s.length()) {
             // Delete
             String deleted = s.subSequence(start, start + count).toString();
@@ -476,7 +479,7 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
                 || "\"".equals(deleted) && "\"".equals(next)) {
                 mInput.post(new Runnable() {
                     @Override public void run() {
-                        deleteAtIndex(next, start);
+                        deleteAtIndex(start, start + next.length());
                     }
                 });
             }
@@ -484,6 +487,9 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
     }
     @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
         Log.d(TAG, "Input: onTextChanged; s=" + s + "; start=" + start + ", before=" + before + ", count=" + count);
+        if (mProgrammaticEditInProgress) {
+            return;
+        }
         if (before == 0 && count == 1) {
             // Insert
             int end = start + count;
@@ -497,7 +503,7 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
             if (inserted.equals(next) &&
                     (next.equals(")") || next.equals("]") || next.equals("\""))) {
                 // Skip already-present closing char
-                deleteAtIndex(next, end);
+                deleteAtIndex(end, end + next.length());
             } else if ("(".equals(inserted)) {
                 insertAfterCaret(")");
             } else if ("[".equals(inserted)) {
@@ -511,26 +517,30 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
         Log.d(TAG, "Input: afterTextChanged; s=" + s);
     }
 
+    private boolean mProgrammaticEditInProgress;
+
     private void insertAfterCaret(String string) {
+        if (mProgrammaticEditInProgress) {
+            return;
+        }
         int caret = mInput.getSelectionEnd();
         Editable content = mInput.getText();
-        String before = content.subSequence(0, caret).toString();
-        String after = content.subSequence(caret, content.length()).toString();
-        String result = before + string + after;
-        mInput.setText(result);
-        mInput.setSelection(before.length());
+        mProgrammaticEditInProgress = true;
+        content.insert(caret, string);
+        mProgrammaticEditInProgress = false;
+        mInput.setSelection(caret);
     }
 
-    private void deleteAtIndex(String toDelete, int start) {
-        int end = start + toDelete.length();
+    private void deleteAtIndex(int start, int end) {
+        if (mProgrammaticEditInProgress) {
+            return;
+        }
         Editable content = mInput.getText();
-        if (start < content.length() && end <= content.length()) {
-            if (content.subSequence(start, end).toString().equals(toDelete)) {
-                StringBuilder builder = new StringBuilder(content);
-                builder.delete(start, end);
-                mInput.setText(builder);
-                mInput.setSelection(start);
-            }
+        if (start < end && start >= 0 && end <= content.length()) {
+            mProgrammaticEditInProgress = true;
+            content.delete(start, end);
+            mProgrammaticEditInProgress = false;
+            mInput.setSelection(start);
         }
     }
 }
