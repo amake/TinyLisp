@@ -3,34 +3,153 @@ package org.tinylisp.formatter;
 import org.tinylisp.engine.Engine;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class Formatter {
 
     private final Engine mEngine = new Engine();
+    private List<Visitor> mVisitors = new ArrayList<>(Arrays.asList(LET_FORMATTER, IF_FORMATTER));
 
     public String format(String program) {
         TLToken token = parse(program);
-        walkTree(token, new Visitor() {
-            @Override
-            public void visit(TLToken token) {
-                if (token instanceof TLAtomToken) {
-                    ((TLAtomToken) token).value += '!';
-                }
-            }
-        });
+        for (Visitor visitor : mVisitors) {
+            walkTree(null, token, 0, visitor);
+        }
         return token.toString();
     }
 
-    public interface Visitor {
-        void visit(TLToken token);
+    public void addVisitor(Visitor visitor) {
+        mVisitors.add(visitor);
     }
 
-    private void walkTree(TLToken token, Visitor visitor) {
-        visitor.visit(token);
-        if (token instanceof TLAggregateToken) {
-            TLAggregateToken aggregate = (TLAggregateToken) token;
-            for (TLToken child : aggregate) {
-                visitor.visit(child);
+    private static final Visitor LET_FORMATTER = new Visitor() {
+        @Override public void visit(TLAggregateToken parent, TLToken child, int depth) {
+            if (isLet(child)) {
+                formatLet((TLAggregateToken) child);
+            }
+        }
+        private boolean isLet(TLToken token) {
+            return isFunctionCall(token, "let*") || isFunctionCall(token, "let");
+        }
+        private void formatLet(TLAggregateToken let) {
+            if (countNonWhitespace(let) > 3) {
+                int paramsIdx = skipWhitespace(let, 2);
+                TLToken params = let.get(paramsIdx);
+                if (isList(params)) {
+                    formatParams((TLAggregateToken) params);
+                }
+            }
+            linebreakAfterRest(let, 2);
+        }
+        private void formatParams(TLAggregateToken params) {
+            linebreakAfterRest(params, 1);
+        }
+    };
+
+    private static final Visitor IF_FORMATTER = new Visitor() {
+        @Override public void visit(TLAggregateToken parent, TLToken child, int depth) {
+            if (isFunctionCall(child, "if")) {
+                formatIf((TLAggregateToken) child);
+            }
+        }
+        private void formatIf(TLAggregateToken ifExpr) {
+            linebreakAfterRest(ifExpr, 2);
+        }
+    };
+
+    private static void linebreakAfterRest(TLAggregateToken aggregate, int from) {
+        for (int i = skipWhitespace(aggregate, from); i < aggregate.size() - 2; i += 2) {
+            linebreakAt(aggregate, i + 1);
+        }
+    }
+
+    private static void linebreakAt(TLAggregateToken aggregate, int idx) {
+        TLToken linebreak = new TLAtomToken("\n");
+        if (idx < aggregate.size() && isWhitespace(aggregate.get(idx))) {
+            aggregate.set(idx, linebreak);
+        } else {
+            aggregate.add(idx, linebreak);
+        }
+    }
+
+    private static int countNonWhitespace(TLAggregateToken aggregate) {
+        return countNonWhitespace(aggregate, 0);
+    }
+
+    private static int countNonWhitespace(TLAggregateToken aggregate, int from) {
+        int count = 0;
+        for (int i = from; i < aggregate.size(); i++) {
+            if (!isWhitespace(aggregate.get(i))) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private static int skipWhitespace(TLAggregateToken aggregate, int idx) {
+        for (; idx < aggregate.size(); idx++) {
+            if (!isWhitespace(aggregate.get(idx))) {
+                return idx;
+            }
+        }
+        return idx;
+    }
+
+    private static boolean isFunctionCall(TLToken token, String functionName) {
+        if (!(token instanceof TLAggregateToken)) {
+            return false;
+        }
+        TLAggregateToken aggregate = (TLAggregateToken) token;
+        if (aggregate.size() < 3) {
+            return false;
+        }
+        TLToken second = aggregate.get(1);
+        return isList(aggregate) && isAtom(second, functionName);
+    }
+
+    private static boolean isAtom(TLToken token, String value) {
+        return token instanceof TLAtomToken && value.equals(((TLAtomToken) token).value);
+    }
+
+    private static boolean isWhitespace(TLToken token) {
+        return token instanceof TLAtomToken && ((TLAtomToken) token).value.trim().isEmpty();
+    }
+
+    private static boolean isList(TLToken token) {
+        return token instanceof TLAggregateToken && isDelimitedBy((TLAggregateToken) token, "(", ")");
+    }
+
+    private static boolean isArray(TLToken token) {
+        return token instanceof TLAggregateToken && isDelimitedBy((TLAggregateToken) token, "[", "]");
+    }
+
+    private static boolean isString(TLToken token) {
+        return token instanceof TLAggregateToken && isDelimitedBy((TLAggregateToken) token, "\"", "\"");
+    }
+
+    private static boolean isComment(TLToken token) {
+        return token instanceof TLAggregateToken && isAtom(((TLAggregateToken) token).get(0), ";");
+    }
+
+    private static boolean isNewline(TLToken token) {
+        return token instanceof TLAtomToken && ((TLAtomToken) token).value.equals("\n");
+    }
+
+    private static boolean isDelimitedBy(TLAggregateToken aggregate, String start, String end) {
+        return aggregate.size() > 1 && isAtom(aggregate.get(0), start) && isAtom(aggregate.get(aggregate.size() - 1), end);
+    }
+
+    public interface Visitor {
+        void visit(TLAggregateToken parent, TLToken child, int depth);
+    }
+
+    private void walkTree(TLAggregateToken parent, TLToken child, int depth, Visitor visitor) {
+        visitor.visit(parent, child, depth);
+        if (child instanceof TLAggregateToken) {
+            TLAggregateToken aggregate = (TLAggregateToken) child;
+            for (int i = 0; i < aggregate.size(); i++) {
+                walkTree(aggregate, aggregate.get(i), depth + 1, visitor);
             }
         }
     }
@@ -41,6 +160,7 @@ public class Formatter {
     }
 
     public interface TLToken {
+        public void append(StringBuilder builder);
     }
 
     public static class TLAtomToken implements TLToken {
@@ -51,15 +171,27 @@ public class Formatter {
         @Override public String toString() {
             return value;
         }
+        @Override public void append(StringBuilder builder) {
+            builder.append(value);
+        }
     }
 
     public static class TLAggregateToken extends ArrayList<TLToken> implements TLToken {
         @Override public String toString() {
             StringBuilder builder = new StringBuilder();
+            append(builder);
+            return builder.toString();
+        }
+        @Override public void append(StringBuilder builder) {
+            int indent = builder.length() + 1;
             for (TLToken token : this) {
                 builder.append(token.toString());
+                if (isNewline(token)) {
+                    for (int i = 0; i < indent; i++) {
+                        builder.append(' ');
+                    }
+                }
             }
-            return builder.toString();
         }
     }
 
