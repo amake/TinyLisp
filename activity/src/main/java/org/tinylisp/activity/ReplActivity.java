@@ -17,10 +17,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.*;
+import difflib.Chunk;
+import difflib.Delta;
+import difflib.DiffUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.tinylisp.engine.Engine;
+import org.tinylisp.formatter.Formatter;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -510,6 +514,8 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
                 insertAfterCaret("]");
             } else if ("\"".equals(inserted)) {
                 insertAfterCaret("\"");
+            } else {
+                formatInput(s.toString());
             }
         }
     }
@@ -517,6 +523,7 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
         Log.d(TAG, "Input: afterTextChanged; s=" + s);
     }
 
+    private final Formatter mFormatter = new Formatter();
     private boolean mProgrammaticEditInProgress;
 
     private void insertAfterCaret(String string) {
@@ -542,5 +549,45 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
             mProgrammaticEditInProgress = false;
             mInput.setSelection(start);
         }
+    }
+
+    /* Input autoformatting */
+
+    private void formatInput(String input) {
+        String formatted = mFormatter.format(input);
+        if (!input.equals(formatted)) {
+            Editable content = mInput.getText();
+            List<String> original = splitChars(input);
+            List<String> revised = splitChars(formatted);
+            mProgrammaticEditInProgress = true;
+            for (Delta<String> delta : DiffUtils.diff(original, revised).getDeltas()) {
+                // Formatting only makes whitespace changes for now,
+                // so should be only DELETE or INSERT
+                switch (delta.getType()) {
+                    case DELETE: {
+                        Chunk<String> chunk = delta.getOriginal();
+                        int position = chunk.getPosition();
+                        content.delete(position, position + chunk.size());
+                        break;
+                    }
+                    case INSERT:
+                        int position = delta.getOriginal().getPosition();
+                        List<String> lines = delta.getRevised().getLines();
+                        for (int i = 0; i < lines.size(); i++) {
+                            content.insert(position + i, lines.get(i));
+                        }
+                        break;
+                }
+            }
+            mProgrammaticEditInProgress = false;
+        }
+    }
+
+    private static List<String> splitChars(String str) {
+        List<String> result = new ArrayList<>(str.length());
+        for (int i = 0; i < str.length(); i++) {
+            result.add(String.valueOf(str.charAt(i)));
+        }
+        return result;
     }
 }
