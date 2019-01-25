@@ -20,3 +20,14 @@ targetCompatibility = 1.8
 run {
     standardInput = System.in
 }
+
+task fmtScripts(type: CreateStartScripts) {
+    applicationName = 'tlfmt'
+    mainClassName = 'org.tinylisp.cmd.Fmt'
+    outputDir = file("$buildDir/fmtScripts")
+    classpath = startScripts.classpath
+}
+
+applicationDistribution.from(fmtScripts) {
+    into executableDir
+}
