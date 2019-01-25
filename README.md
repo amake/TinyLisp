@@ -27,7 +27,10 @@ objects.
 - Android compatibility
 
 ## Extras
-- [cmd](./cmd): A command-line interpreter that can execute files or be a REPL
+- [cmd](./cmd):
+  - A command-line interpreter that can execute files or be a REPL
+  - A command-line formatter that auto-formats code in an opinionated way
+- [formatter](./formatter): The library that powers the formatter
 - [activity](./activity): An Android library providing a TinyLisp REPL activity
 - [app](./app): An Android app for the activity
 
@@ -37,6 +40,8 @@ Binaries are available in
 [Releases](https://github.com/amake/TinyLisp/releases). Run the appropriate
 executable in the `bin` folder.
 
+TinyLisp interpreter:
+
 ```sh
 $ echo '(+ 1 2 3)' | ./bin/tinylisp
 6
@@ -44,6 +49,16 @@ $ echo '(+ 1 2 3)' > program.lisp
 $ ./bin/tinylisp program.lisp
 6
 $ ./bin/tinylisp # No args or stdin launches REPL
+```
+
+Formatter:
+
+```sh
+$ echo "(let ((a 1)(b 2))   (+ a b)'foo)"| ./bin/tlfmt
+(let ((a 1)
+      (b 2))
+ (+ a b)
+ 'foo)
 ```
 
 ### Engine
@@ -62,6 +77,13 @@ TLEnvironment env = Engine.defaultEnvironment();
 TLExpression result = engine.execute("(+ 1 2 3)", env); // 6
 ```
 
+### Formatter
+The formatter is also available from JCenter:
+
+```
+implementation 'org.tinylisp:formatter:+'
+```
+
 ### Android REPL activity
 The Android REPL activity is also available from JCenter:
 
@@ -76,7 +98,7 @@ The TinyLisp engine targets Java 7 for Android compatibility.
 
 The Android REPL activity targets API 28 (min API 15).
 
-The CLI executable requires Java 8+.
+The CLI executables require Java 8+.
 
 ## Limitations
 - The point is to be small and simple, so many standard commands are missing
