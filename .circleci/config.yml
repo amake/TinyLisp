@@ -1,0 +1,37 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/code
+    docker:
+      - image: circleci/android:api-28-alpha
+    environment:
+      JVM_OPTS: -Xmx3200m
+    steps:
+      - checkout
+      - run:
+          name: Make super build.gradle
+          command: cat build.gradle */build.gradle > ~/super.build.gradle
+      - restore_cache:
+          key: jars-{{ checksum "~/super.build.gradle" }}
+      - run:
+          name: Download Dependencies
+          command: ./gradlew allDependencies
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: jars-{{ checksum "~/super.build.gradle" }}
+      - run:
+          name: Run Tests
+          command: ./gradlew check
+      - run:
+          name: Aggregate test results
+          command: |
+            mkdir -p ~/{test-results,reports}
+            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/test-results/ \;
+            find . -type f -regex ".*/build/reports/.*xml" -exec cp {} ~/reports/ \;
+          when: always
+      - store_test_results:
+          path: ~/test-results
+      - store_artifacts:
+          path: ~/reports
+          destination: reports
