@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.CallSuper;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -80,6 +81,7 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
 
     /* REPL manipulation methods */
 
+    @CallSuper
     protected void initRepl() {
         clear();
         initEnvironment();
@@ -87,6 +89,7 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
         mSessionStart = mHistory.size();
     }
 
+    @CallSuper
     protected void initEnvironment() {
         mEnv = Engine.defaultEnvironment();
         mEnv.put(Engine.TLSymbolExpression.of("clear"), new Engine.TLFunction() {
