@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'org.tinylisp'
-version '0.4-SNAPSHOT'
+version '0.4'
 
 android {
     compileSdkVersion 28
