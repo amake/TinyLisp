@@ -1,4 +1,4 @@
-package org.tinylisp.repl;
+package org.tinylisp.cmd;
 
 import org.junit.Test;
 

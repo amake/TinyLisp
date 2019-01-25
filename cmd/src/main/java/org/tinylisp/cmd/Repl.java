@@ -1,4 +1,4 @@
-package org.tinylisp.repl;
+package org.tinylisp.cmd;
 
 import org.jline.reader.Candidate;
 import org.jline.reader.Completer;

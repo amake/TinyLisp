@@ -10,7 +10,7 @@ dependencies {
 }
 
 applicationName = 'tinylisp'
-mainClassName = 'org.tinylisp.repl.Main'
+mainClassName = 'org.tinylisp.cmd.Main'
 version = '0.3-SNAPSHOT'
 
 sourceCompatibility = 1.8
