@@ -51,5 +51,6 @@ public class FormatterTest {
 
     @Test public void testIdempotency() {
         assertEquals("(if a\n )", formatter.format("(if a\n )"));
+        assertEquals("\"\"", formatter.format("\"\""));
     }
 }

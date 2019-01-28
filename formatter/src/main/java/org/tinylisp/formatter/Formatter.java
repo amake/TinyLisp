@@ -37,7 +37,7 @@ public class Formatter {
     private static final Visitor WHITESPACE_NORMALIZER = new Visitor() {
         @Override
         public void visit(TLAggregateToken parent, TLToken child, int depth) {
-            if (isWhitespace(child)) {
+            if (!isString(parent) && isWhitespace(child)) {
                 ((TLAtomToken) child).value = " ";
             } else if (child instanceof TLAggregateToken) {
                 TLAggregateToken aggregate = (TLAggregateToken) child;
