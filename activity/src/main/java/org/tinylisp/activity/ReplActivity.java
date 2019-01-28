@@ -517,9 +517,10 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
                 insertAfterCaret("]");
             } else if ("\"".equals(inserted)) {
                 insertAfterCaret("\"");
-            } else {
-                formatInput(s.toString());
             }
+        }
+        if (s.length() > 0) {
+            formatInput(s.toString());
         }
     }
     @Override public void afterTextChanged(Editable s) {
