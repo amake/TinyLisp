@@ -13,7 +13,8 @@ public class Formatter {
     private static final Logger LOGGER = Logger.getLogger(Formatter.class.getName());
 
     private final Engine mEngine = new Engine();
-    private List<Visitor> mVisitors = new ArrayList<>(Arrays.asList(WHITESPACE_NORMALIZER, LET_FORMATTER, IF_FORMATTER));
+    private List<Visitor> mVisitors = new ArrayList<>(Arrays.asList(WHITESPACE_NORMALIZER, LET_FORMATTER, IF_FORMATTER,
+            PROGN_FORMATTER));
 
     public String format(String program) {
         TLToken token;
@@ -94,6 +95,14 @@ public class Formatter {
             if (countNonWhitespace(ifExpr) > 4) {
                 int consequentIdx = indexOfNthNonWhitespace(ifExpr, 3);
                 ifExpr.add(consequentIdx, new TLAtomToken(" "));
+            }
+        }
+    };
+
+    private static final Visitor PROGN_FORMATTER = new Visitor() {
+        @Override public void visit(TLAggregateToken parent, TLToken child, int depth) {
+            if (isFunctionCall(child, "progn")) {
+                linebreakAfterRest(((TLAggregateToken) child), 1);
             }
         }
     };
