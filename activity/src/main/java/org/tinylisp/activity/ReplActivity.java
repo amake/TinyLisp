@@ -476,17 +476,17 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
     /* TextWatcher */
 
     @Override public void beforeTextChanged(CharSequence s, final int start, int count, int after) {
-         Log.d(TAG, "Input: beforeTextChanged; s=" + s + "; start=" + start + ", count=" + count + ", after=" + after);
-         if (mProgrammaticEditInProgress) {
-             return;
-         }
-         if (after == 0 && count == 1 && start + count < s.length()) {
+        Log.d(TAG, "Input: beforeTextChanged; s=" + s + "; start=" + start + ", count=" + count + ", after=" + after);
+        if (mProgrammaticEditInProgress) {
+            return;
+        }
+        if (after == 0 && count == 1 && start + count < s.length()) {
             // Delete
             String deleted = s.subSequence(start, start + count).toString();
             final String next = s.subSequence(start + count, start + count + 1).toString();
             if ("(".equals(deleted) && ")".equals(next)
-                || "[".equals(deleted) && "]".equals(next)
-                || "\"".equals(deleted) && "\"".equals(next)) {
+                    || "[".equals(deleted) && "]".equals(next)
+                    || "\"".equals(deleted) && "\"".equals(next)) {
                 mInput.post(new Runnable() {
                     @Override public void run() {
                         deleteAtIndex(start, start + next.length());
