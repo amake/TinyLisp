@@ -35,6 +35,7 @@ public class FormatterTest {
                 formatter.format("(let ((a 1) (b 2)) (if (> a b) 'foo 'bar))"));
         assertEquals("(progn\n a\n b\n c\n d)", formatter.format("(progn a b c d)"));
         assertEquals("(a b c [1 2 3] 'foo)", formatter.format("( a b c [ 1 2 3] ' foo)"));
+        assertEquals("((a b c) [1 2 3] 'foo (a b c))", formatter.format("((a b c)[ 1 2 3]'foo(a b c))"));
     }
 
     @Test public void testPartialInput() {
