@@ -31,8 +31,10 @@ public class FormatterTest {
         assertEquals("(let ((foo (+ 1 1)))\n (bar)\n (baz))", formatter.format("(let ((foo (+ 1 1))) (bar) (baz))"));
         assertEquals("(if a\n  b)", formatter.format("(if a b)"));
         assertEquals("(if a\n  b\n c\n d)", formatter.format("(if a b c d)"));
-        assertEquals("(let ((a 1)\n      (b 2))\n (if (> a b)\n    'foo\n   'bar))",
+        assertEquals("(let ((a 1)\n      (b 2))\n (if (> a b)\n   'foo\n  'bar))",
                 formatter.format("(let ((a 1) (b 2)) (if (> a b) 'foo 'bar))"));
+        assertEquals("(if a\n  (let ((a 1)\n        (b 2))\n   'foo\n   'bar)\n baz)",
+                formatter.format("(if a (let ((a 1)(b 2)) 'foo 'bar) baz)"));
         assertEquals("(progn\n a\n b\n c\n d)", formatter.format("(progn a b c d)"));
         assertEquals("(a b c [1 2 3] 'foo)", formatter.format("( a b c [ 1 2 3] ' foo)"));
         assertEquals("((a b c) [1 2 3] 'foo (a b c))", formatter.format("((a b c)[ 1 2 3]'foo(a b c))"));

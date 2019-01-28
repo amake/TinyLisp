@@ -274,7 +274,7 @@ public class Formatter {
         }
         @Override public void append(StringBuilder builder) {
             int lastNewLine = builder.lastIndexOf("\n");
-            int lineStart = lastNewLine == -1 ? 0 : lastNewLine;
+            int lineStart = lastNewLine == -1 ? 0 : lastNewLine + 1;
             int indent = builder.length() - lineStart + 1;
             for (TLToken token : this) {
                 token.append(builder);
