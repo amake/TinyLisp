@@ -19,7 +19,7 @@ public class Formatter {
         TLToken token;
         try {
             token = parse(program);
-        } catch (IndexOutOfBoundsException ex) {
+        } catch (Exception ex) {
             LOGGER.log(Level.FINE, "Failed to format input", ex);
             return program;
         }
