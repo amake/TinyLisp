@@ -2,6 +2,7 @@ package org.tinylisp.activity;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -10,7 +11,9 @@ import android.support.v4.app.ShareCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
+import android.text.Spanned;
 import android.text.TextWatcher;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -521,6 +524,7 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
         }
         if (s.length() > 0) {
             formatInput(s.toString());
+            colorParens((Editable) s);
         }
     }
     @Override public void afterTextChanged(Editable s) {
@@ -593,5 +597,46 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
             result.add(String.valueOf(str.charAt(i)));
         }
         return result;
+    }
+
+    private static final int[] LEVEL_COLORS;
+    static {
+        // From rainbow-delimiters.el
+        String[] colorStrings = { "#707183", "#7388d6", "#909183", "#709870", "#907373", "#6276ba", "#858580", "#80a880", "#887070" };
+        int[] colorInts = new int[colorStrings.length];
+        for (int i = 0; i < colorStrings.length; i++) {
+            colorInts[i] = Color.parseColor(colorStrings[i]);
+        }
+        LEVEL_COLORS = colorInts;
+    }
+
+    private void colorParens(Editable content) {
+        clearLevelColors(content);
+        int level = 0;
+        for (int i = 0; i < content.length(); i++) {
+            char c = content.charAt(i);
+            switch (c) {
+            case '(':
+            case '[':
+                applyLevelColorAt(content, level++, i, i + 1);
+                break;
+            case ')':
+            case ']':
+                applyLevelColorAt(content, --level, i, i + 1);
+                break;
+            }
+        }
+    }
+
+    private void clearLevelColors(Editable content) {
+        for (ForegroundColorSpan span : content.getSpans(0, content.length(), ForegroundColorSpan.class)) {
+            content.removeSpan(span);
+        }
+    }
+
+    private void applyLevelColorAt(Editable content, int level, int start, int end) {
+        Log.d(TAG, "applyLevelColorAt: level=" + level + "; start=" + start + "; end=" + end);
+        int color = LEVEL_COLORS[Math.min(level, LEVEL_COLORS.length - 1)];
+        content.setSpan(new ForegroundColorSpan(color), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 }
