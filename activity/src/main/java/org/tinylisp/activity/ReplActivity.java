@@ -12,7 +12,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.Spanned;
+import android.text.TextPaint;
 import android.text.TextWatcher;
+import android.text.style.CharacterStyle;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -483,15 +485,14 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
         if (after == 0 && count == 1 && start + count < s.length()) {
             // Delete
             String deleted = s.subSequence(start, start + count).toString();
-            final String next = s.subSequence(start + count, start + count + 1).toString();
+            int nextStart = start + count;
+            int nextEnd = nextStart + 1;
+            String next = s.subSequence(nextStart, nextEnd).toString();
             if ("(".equals(deleted) && ")".equals(next)
                     || "[".equals(deleted) && "]".equals(next)
                     || "\"".equals(deleted) && "\"".equals(next)) {
-                mInput.post(new Runnable() {
-                    @Override public void run() {
-                        deleteAtIndex(start, start + next.length());
-                    }
-                });
+                Editable content = (Editable) s;
+                content.setSpan(new ToDelete(), nextStart, nextEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
         }
     }
@@ -522,6 +523,7 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
                 insertAfterCaret("\"");
             }
         }
+        deletePending();
         if (s.length() > 0) {
             formatInput(s.toString());
             colorParens((Editable) s);
@@ -557,6 +559,25 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
             mProgrammaticEditInProgress = false;
             mInput.setSelection(start);
         }
+    }
+
+    private static class ToDelete extends CharacterStyle {
+        @Override public void updateDrawState(TextPaint tp) {
+        }
+    }
+
+    private void deletePending() {
+        if (mProgrammaticEditInProgress) {
+            return;
+        }
+        Editable content = mInput.getText();
+        mProgrammaticEditInProgress = true;
+        for (ToDelete span : content.getSpans(0, content.length(), ToDelete.class)) {
+            int start = content.getSpanStart(span);
+            int end = content.getSpanEnd(span);
+            content.delete(start, end);
+        }
+        mProgrammaticEditInProgress = false;
     }
 
     /* Input autoformatting */
