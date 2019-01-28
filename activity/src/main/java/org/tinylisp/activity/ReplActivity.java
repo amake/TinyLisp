@@ -636,7 +636,7 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
 
     private void applyLevelColorAt(Editable content, int level, int start, int end) {
         Log.d(TAG, "applyLevelColorAt: level=" + level + "; start=" + start + "; end=" + end);
-        int color = LEVEL_COLORS[Math.min(level, LEVEL_COLORS.length - 1)];
+        int color = LEVEL_COLORS[Math.max(0, Math.min(level, LEVEL_COLORS.length - 1))];
         content.setSpan(new ForegroundColorSpan(color), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 }
