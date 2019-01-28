@@ -40,7 +40,9 @@ public class Formatter {
             if (isWhitespace(child)) {
                 ((TLAtomToken) child).value = " ";
             } else if (child instanceof TLAggregateToken) {
-                removeConsecutiveWhitespace((TLAggregateToken) child);
+                TLAggregateToken aggregate = (TLAggregateToken) child;
+                removeConsecutiveWhitespace(aggregate);
+                removeHeadWhitespace(aggregate);
             }
         }
         private void removeConsecutiveWhitespace(TLAggregateToken aggregate) {
@@ -54,6 +56,13 @@ public class Formatter {
                             break;
                         }
                     }
+                }
+            }
+        }
+        private void removeHeadWhitespace(TLAggregateToken aggregate) {
+            if (isList(aggregate) || isArray(aggregate) || isQuoted(aggregate)) {
+                if (isWhitespace(aggregate.get(1))) {
+                    aggregate.remove(1);
                 }
             }
         }
