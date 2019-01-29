@@ -40,6 +40,12 @@ public class FormatterTest {
         assertEquals("((a b c) [1 2 3] 'foo (a b c))", formatter.format("((a b c)[ 1 2 3]'foo(a b c))"));
     }
 
+    @Test public void testComments() {
+        assertEquals("; blah", formatter.format("; blah"));
+        assertEquals("(; foo\n)", formatter.format("(  ; foo\n)"));
+        assertEquals("(a ; foo\n )", formatter.format("(a  ; foo\n  )"));
+    }
+
     @Test public void testPartialInput() {
         assertEquals("", formatter.format(""));
         assertEquals("(", formatter.format("("));

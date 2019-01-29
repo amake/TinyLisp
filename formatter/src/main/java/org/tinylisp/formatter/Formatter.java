@@ -304,12 +304,7 @@ public class Formatter {
         } else if (";".equals(token)) {
             TLAggregateToken expression = new TLAggregateToken();
             expression.add(new TLAtomToken(token));
-            while (!tokens.isEmpty() && !"\n".equals(tokens.get(0))) {
-                expression.add(readTokens(tokens));
-            }
-            if (!tokens.isEmpty()) {
-                expression.add(new TLAtomToken(tokens.remove(0)));
-            }
+            expression.add(readTokens(tokens));
             return expression;
         } else if ("'".equals(token)) {
             TLAggregateToken expression = new TLAggregateToken();
