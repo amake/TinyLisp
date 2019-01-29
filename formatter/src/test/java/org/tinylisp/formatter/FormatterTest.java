@@ -44,6 +44,7 @@ public class FormatterTest {
         assertEquals("; blah", formatter.format("; blah"));
         assertEquals("(; foo\n)", formatter.format("(  ; foo\n)"));
         assertEquals("(a ; foo\n )", formatter.format("(a  ; foo\n  )"));
+        assertEquals("(a\n ;; foo\n )", formatter.format("(a  ;; foo\n  )"));
     }
 
     @Test public void testPartialInput() {

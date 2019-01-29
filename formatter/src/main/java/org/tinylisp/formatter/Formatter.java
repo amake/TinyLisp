@@ -14,7 +14,7 @@ public class Formatter {
 
     private final Engine mEngine = new Engine();
     private List<Visitor> mVisitors = new ArrayList<>(Arrays.asList(WHITESPACE_NORMALIZER, LET_FORMATTER, IF_FORMATTER,
-            PROGN_FORMATTER));
+            PROGN_FORMATTER, COMMENT_FORMATTER));
 
     public String format(String program) {
         TLToken token;
@@ -126,6 +126,20 @@ public class Formatter {
         }
     };
 
+    private static final Visitor COMMENT_FORMATTER = new Visitor() {
+        @Override public void visit(TLAggregateToken parent, TLToken child, int depth) {
+            if (child instanceof TLAggregateToken) {
+                TLAggregateToken aggregate = (TLAggregateToken) child;
+                for (int i = 0; i < aggregate.size(); i++) {
+                    TLToken token = aggregate.get(i);
+                    if (isLineComment(token)) {
+                        linebreakAt(aggregate, i - 1);
+                    }
+                }
+            }
+        }
+    };
+
     private static void linebreakAfterRest(TLAggregateToken aggregate, int from) {
         for (int i = skipWhitespace(aggregate, from); i < aggregate.size() - 2; i += 2) {
             linebreakAt(aggregate, i + 1);
@@ -216,6 +230,10 @@ public class Formatter {
 
     private static boolean isComment(TLToken token) {
         return token instanceof TLAggregateToken && isAtom(((TLAggregateToken) token).get(0), ";");
+    }
+
+    private static boolean isLineComment(TLToken token) {
+        return isComment(token) && ((TLAtomToken) ((TLAggregateToken) token).get(1)).value.startsWith(";");
     }
 
     private static boolean isQuoted(TLToken token) {
