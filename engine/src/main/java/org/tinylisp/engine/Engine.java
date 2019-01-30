@@ -562,27 +562,18 @@ public class Engine {
     }
 
     private TLExpression readTokens(ArrayList<String> tokens) {
-        String token;
-        do {
-            if (tokens.isEmpty()) {
-                throw new IllegalArgumentException("End of token list");
-            }
-            token = tokens.remove(0);
-            if (";".equals(token)) {
-                tokens.remove(0); // throw away comment content
-                token = tokens.remove(0);
-            }
-        } while (token.trim().isEmpty());
+        String token = popToNext(tokens);
+        tokens.remove(0);
         if ("(".equals(token)) {
             TLListExpression expression = new TLListExpression();
-            while (!")".equals(tokens.get(0))) {
+            while (!")".equals(popToNext(tokens))) {
                 expression.add(readTokens(tokens));
             }
             tokens.remove(0);
             return expression;
         } else if ("[".equals(token)) {
             List<Object> values = new ArrayList<>();
-            while (!"]".equals(tokens.get(0))) {
+            while (!"]".equals(popToNext(tokens))) {
                 // Arrays can only contain atoms
                 TLAtomExpression atom = (TLAtomExpression) readTokens(tokens);
                 values.add(atom.getValue());
@@ -600,6 +591,22 @@ public class Engine {
             return expression;
         } else {
             return atomize(token);
+        }
+    }
+
+    private String popToNext(ArrayList<String> tokens) {
+        if (tokens.isEmpty()) {
+            throw new IllegalArgumentException("End of token list");
+        }
+        while (true) {
+            String token = tokens.get(0);
+            if (token.trim().isEmpty()) {
+                tokens.remove(0);
+            } else if (";".equals(token)) {
+                tokens.subList(0, 2).clear();
+            } else {
+                return token;
+            }
         }
     }
 

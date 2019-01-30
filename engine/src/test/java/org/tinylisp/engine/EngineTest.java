@@ -426,4 +426,19 @@ public class EngineTest {
         assertEquals(new BigDecimal("93326215443944152681699238856266700490715968264381621468592963895217599993229915608941463976156518286253697920827223758251185210916864000000000000000000000000"),
                 engine.execute("(fact 100)", stdEnv).getValue());
     }
+
+    @Test
+    public void testWhitespace() throws Exception {
+        Engine.TLEnvironment stdEnv = Engine.defaultEnvironment();
+        assertEquals(Arrays.asList(1, 2, 3), engine.execute("(list 1 2 3 )", stdEnv).getValue());
+        assertEquals(Arrays.asList(1, 2, 3), engine.execute("( list 1 2 3)", stdEnv).getValue());
+        assertEquals(Collections.emptyList(), engine.execute("()", stdEnv).getValue());
+        assertEquals(Collections.emptyList(), engine.execute("( )", stdEnv).getValue());
+        assertEquals(Collections.emptyList(), engine.execute("(  )", stdEnv).getValue());
+        assertArrayEquals(new int[] { 1, 2, 3 }, (int[]) engine.execute("[1 2 3 ]", stdEnv).getValue());
+        assertArrayEquals(new int[] { 1, 2, 3 }, (int[]) engine.execute("[ 1 2 3]", stdEnv).getValue());
+        assertArrayEquals(new Object[] {}, (Object[]) engine.execute("[]", stdEnv).getValue());
+        assertArrayEquals(new Object[] {}, (Object[]) engine.execute("[ ]", stdEnv).getValue());
+        assertArrayEquals(new Object[] {}, (Object[]) engine.execute("[  ]", stdEnv).getValue());
+    }
 }
