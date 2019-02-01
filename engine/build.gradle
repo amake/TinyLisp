@@ -9,7 +9,7 @@ dependencies {
 }
 
 group 'org.tinylisp'
-version '0.4-SNAPSHOT'
+version '0.4'
 
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
