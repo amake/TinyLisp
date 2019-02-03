@@ -499,7 +499,8 @@ public class Engine {
                 return eValue;
             } else if (isSymbol(first, "lambda")) {
                 TLListExpression params = (TLListExpression) expression.get(1);
-                TLListExpression body = (TLListExpression) expression.get(2);
+                TLListExpression body = new TLListExpression(expression.subList(2, expression.size()));
+                body.add(0, TLSymbolExpression.of("progn"));
                 return TLLambdaFunction.of(params, body, environment, this);
             } else if (isSymbol(first, "if")) {
                 TLExpression condition = expression.get(1);

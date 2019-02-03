@@ -120,6 +120,7 @@ public class EngineTest {
         assertEquals(2, engine.execute("((lambda (x) (add 1 x)) 1)", env).getValue());
         engine.execute("(def increment (lambda (x) (add 1 x)))", env);
         assertEquals(5, engine.execute("(increment 4)", env).getValue());
+        assertEquals(3, engine.execute("((lambda (x) 1 3) 1)", env).getValue());
     }
 
     @Test
