@@ -38,6 +38,8 @@ public class FormatterTest {
         assertEquals("(progn\n a\n b\n c\n d)", formatter.format("(progn a b c d)"));
         assertEquals("(a b c [1 2 3] 'foo)", formatter.format("( a b c [ 1 2 3] ' foo)"));
         assertEquals("((a b c) [1 2 3] 'foo (a b c))", formatter.format("((a b c)[ 1 2 3]'foo(a b c))"));
+        assertEquals("(lambda (x y z)\n 'foo)", formatter.format("(lambda (x y z) 'foo)"));
+        assertEquals("(lambda (x y z)\n 'foo\n 'bar)", formatter.format("(lambda (x y z) 'foo 'bar)"));
     }
 
     @Test public void testComments() {

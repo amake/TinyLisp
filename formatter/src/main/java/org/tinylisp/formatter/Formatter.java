@@ -14,7 +14,7 @@ public class Formatter {
 
     private final Engine mEngine = new Engine();
     private List<Visitor> mVisitors = new ArrayList<>(Arrays.asList(WHITESPACE_NORMALIZER, LET_FORMATTER, IF_FORMATTER,
-            PROGN_FORMATTER, COMMENT_FORMATTER));
+            PROGN_FORMATTER, LAMBDA_FORMATTER, COMMENT_FORMATTER));
 
     public String format(String program) {
         TLToken token;
@@ -122,6 +122,14 @@ public class Formatter {
         @Override public void visit(TLAggregateToken parent, TLToken child, int depth) {
             if (isFunctionCall(child, "progn")) {
                 linebreakAfterRest(((TLAggregateToken) child), 1);
+            }
+        }
+    };
+
+    private static final Visitor LAMBDA_FORMATTER = new Visitor() {
+        @Override public void visit(TLAggregateToken parent, TLToken child, int depth) {
+            if (isFunctionCall(child, "lambda")) {
+                linebreakAfterRest((TLAggregateToken) child, 2);
             }
         }
     };
