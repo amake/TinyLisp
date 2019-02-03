@@ -216,7 +216,7 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
 
     protected void executeAsync(String input) {
         // echo
-        print("\n> ", input, "\n");
+        print("\n> ", input.replace("\n", "\n  "), "\n");
         ExecuteAsync prev = mExecution;
         if (prev != null) {
             prev.cancel(true);
