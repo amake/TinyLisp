@@ -2,6 +2,11 @@
 TinyLisp is a very simple Lisp implementation for Java. It is heavily inspired
 by Peter Norvig's [lis.py](http://norvig.com/lispy.html).
 
+![demo](https://user-images.githubusercontent.com/2172537/52416817-d941c680-2b2d-11e9-83b2-f02a218f32bb.gif)
+
+The above demo shows the REPL on Android and illustrates input assist,
+auto-formatting, symbol completion, history, and sharing.
+
 ## Motivation
 Imagine you are working with a proprietary software vendor who provides you with
 a native binary compiled for Android. You want to test out the binary, seeing
