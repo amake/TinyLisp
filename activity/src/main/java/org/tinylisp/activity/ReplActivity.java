@@ -173,9 +173,11 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
         String completion = complete(before);
         Log.d(TAG, "onCompletionTriggered: before=" + before + "; after=" + after + "; completion='" + completion + "'");
         if (completion != null) {
+            mProgrammaticEditInProgress = true;
             mInput.setText(completion);
             mInput.append(after);
             mInput.setSelection(completion.length());
+            mProgrammaticEditInProgress = false;
             mInput.requestFocus();
         }
     }
