@@ -588,8 +588,10 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
             Editable content = mInput.getText();
             List<String> original = splitChars(input);
             List<String> revised = splitChars(formatted);
+            List<Delta<String>> deltas = DiffUtils.diff(original, revised).getDeltas();
+            Log.d(TAG, "formatInput: " + deltas.size() + " delta(s)");
             mProgrammaticEditInProgress = true;
-            for (Delta<String> delta : DiffUtils.diff(original, revised).getDeltas()) {
+            for (Delta<String> delta : deltas) {
                 // Formatting only makes whitespace changes for now,
                 // so should be only DELETE or INSERT
                 switch (delta.getType()) {
