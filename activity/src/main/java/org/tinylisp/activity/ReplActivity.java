@@ -171,6 +171,7 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
         String before = input.subSequence(0, caret).toString();
         String after = input.subSequence(caret, input.length()).toString();
         String completion = complete(before);
+        Log.d(TAG, "onCompletionTriggered: before=" + before + "; after=" + after + "; completion='" + completion + "'");
         if (completion != null) {
             mInput.setText(completion);
             mInput.append(after);
