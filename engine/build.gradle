@@ -16,7 +16,7 @@ targetCompatibility = 1.7
 
 import org.apache.tools.ant.filters.ReplaceTokens
 
-task processSource(type: Copy) {
+task processSource(type: Sync) {
     from sourceSets.main.java
     inputs.property 'version', version
     filter(ReplaceTokens, tokens: [version: version])
