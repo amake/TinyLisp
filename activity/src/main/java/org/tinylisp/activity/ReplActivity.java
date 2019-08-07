@@ -620,10 +620,16 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
                         break;
                     }
                     case INSERT:
+                        int cursor = mInput.getSelectionEnd();
                         int position = delta.getOriginal().getPosition();
                         List<String> lines = delta.getRevised().getLines();
                         for (int i = 0; i < lines.size(); i++) {
                             content.insert(position + i, lines.get(i));
+                        }
+                        if (cursor == position) {
+                            // Restore cursor if it happened to be at the insert position,
+                            // to prevent it from getting moved forward unintentionally.
+                            mInput.setSelection(cursor);
                         }
                         break;
                 }
