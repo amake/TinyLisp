@@ -69,7 +69,9 @@ public class Formatter {
         }
         private void ensureWhitespaceBetween(TLAggregateToken aggregate) {
             if ((isList(aggregate) || isArray(aggregate)) && countNonWhitespace(aggregate) >= 4) {
-                for (int i = indexOfNthNonWhitespace(aggregate, 2); i < aggregate.size() - 1; i = skipWhitespace(aggregate, i + 1)) {
+                for (int i = indexOfNthNonWhitespace(aggregate, 2);
+                     i >= 0 && i < aggregate.size() - 1;
+                     i = skipWhitespace(aggregate, i + 1)) {
                     if (!isWhitespace(aggregate.get(i - 1))) {
                         aggregate.add(i++, new TLAtomToken(" "));
                     }
