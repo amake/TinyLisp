@@ -40,6 +40,7 @@ public class FormatterTest {
         assertEquals("((a b c) [1 2 3] 'foo (a b c))", formatter.format("((a b c)[ 1 2 3]'foo(a b c))"));
         assertEquals("(lambda (x y z)\n 'foo)", formatter.format("(lambda (x y z) 'foo)"));
         assertEquals("(lambda (x y z)\n 'foo\n 'bar)", formatter.format("(lambda (x y z) 'foo 'bar)"));
+        assertEquals("(map (lambda (n)\n      (+ n 1))\n '(1 2 3))", formatter.format("(map (lambda (n) (+ n 1)) '(1 2 3))"));
     }
 
     @Test public void testComments() {

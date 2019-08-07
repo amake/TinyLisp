@@ -14,7 +14,7 @@ public class Formatter {
 
     private final Engine mEngine = new Engine();
     private List<Visitor> mVisitors = new ArrayList<>(Arrays.asList(WHITESPACE_NORMALIZER, LET_FORMATTER, IF_FORMATTER,
-            PROGN_FORMATTER, LAMBDA_FORMATTER, COMMENT_FORMATTER));
+            PROGN_FORMATTER, LAMBDA_FORMATTER, COMMENT_FORMATTER, MULTILINE_FORM_FORMATTER));
 
     public String format(String program) {
         TLToken token;
@@ -150,6 +150,25 @@ public class Formatter {
         }
     };
 
+    private static final Visitor MULTILINE_FORM_FORMATTER = new Visitor() {
+        @Override
+        public void visit(TLAggregateToken parent, TLToken child, int depth) {
+            if (isList(child)) {
+                TLAggregateToken list = (TLAggregateToken) child;
+                for (int i = indexOfNthNonWhitespace(list, 2);
+                     i >= 0 && i < list.size() - 1;
+                     i = skipWhitespace(list, i + 1)) {
+                    TLToken token = list.get(i);
+                    if (token instanceof TLAggregateToken && hasAtom((TLAggregateToken) token, "\n")) {
+                        if (countNonWhitespace(list, i + 1) > 1) {
+                            linebreakAt(list, i + 1);
+                        }
+                    }
+                }
+            }
+        }
+    };
+
     private static void linebreakAfterRest(TLAggregateToken aggregate, int from) {
         for (int i = skipWhitespace(aggregate, from); i < aggregate.size() - 2; i += 2) {
             linebreakAt(aggregate, i + 1);
@@ -224,6 +243,15 @@ public class Formatter {
             }
         }
         return true;
+    }
+
+    private static boolean hasAtom(TLAggregateToken aggregate, String value) {
+        for (int i = 0; i < aggregate.size(); i++) {
+            if (isAtom(aggregate.get(i), value)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static boolean isList(TLToken token) {
