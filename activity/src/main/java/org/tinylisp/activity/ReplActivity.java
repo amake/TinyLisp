@@ -37,6 +37,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class ReplActivity extends AppCompatActivity implements TextView.OnEditorActionListener, View.OnClickListener, View.OnKeyListener, TextWatcher {
@@ -585,13 +587,26 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
 
     /* Input autoformatting */
 
+    private static final Comparator<Delta<?>> DELTA_COMPARATOR = new Comparator<Delta<?>>() {
+        @Override
+        public int compare(Delta<?> d1, Delta<?> d2) {
+            int pos1 = d1.getOriginal().getPosition();
+            int pos2 = d2.getOriginal().getPosition();
+            // Smaller position is sorted last so offsets remain correct.
+            // Can't use Integer.compare() at this Android API level.
+            return pos1 == pos2 ? 0 : pos1 < pos2 ? 1 : -1;
+        }
+    };
+
     private void formatInput(String input) {
         String formatted = mFormatter.format(input);
         if (!input.equals(formatted)) {
+            Log.d(TAG, "Formatted target: " + formatted);
             Editable content = mInput.getText();
             List<String> original = splitChars(input);
             List<String> revised = splitChars(formatted);
             List<Delta<String>> deltas = DiffUtils.diff(original, revised).getDeltas();
+            Collections.sort(deltas, DELTA_COMPARATOR);
             Log.d(TAG, "formatInput: " + deltas.size() + " delta(s)");
             mProgrammaticEditInProgress = true;
             for (Delta<String> delta : deltas) {
