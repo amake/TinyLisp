@@ -163,7 +163,8 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
             mOutput.append(string);
         }
         mScrollView.post(new Runnable() {
-            @Override public void run() {
+            @Override
+            public void run() {
                 mScrollView.fullScroll(View.FOCUS_DOWN);
                 mInput.requestFocus();
             }
@@ -249,7 +250,8 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
             mEnv = env;
         }
 
-        @Override protected void onPreExecute() {
+        @Override
+        protected void onPreExecute() {
             ReplActivity activity = mActivity.get();
             if (activity != null) {
                 activity.mInput.setEnabled(false);
@@ -257,7 +259,8 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
             }
         }
 
-        @Override protected Engine.TLExpression doInBackground(String... strings) {
+        @Override
+        protected Engine.TLExpression doInBackground(String... strings) {
             try {
                 long start = System.currentTimeMillis();
                 Engine.TLExpression result = mEngine.execute(strings[0], mEnv);
@@ -270,7 +273,8 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
             return null;
         }
 
-        @Override protected void onPostExecute(Engine.TLExpression result) {
+        @Override
+        protected void onPostExecute(Engine.TLExpression result) {
             if (isCancelled()) {
                 return;
             }
@@ -374,12 +378,14 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
         return false;
     }
 
-    @Override public boolean onCreateOptionsMenu(Menu menu) {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_repl, menu);
         return true;
     }
 
-    @Override public boolean onOptionsItemSelected(MenuItem item) {
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_share) {
             shareConsoleLog();
             return true;
@@ -398,9 +404,9 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
     private void sharePlainText(String text) {
         try {
             ShareCompat.IntentBuilder.from(this)
-                .setText(text)
-                .setType("text/plain")
-                .startChooser();
+                    .setText(text)
+                    .setType("text/plain")
+                    .startChooser();
             return;
         } catch (Exception ex) {
             // Fails with TransactionTooLargeException when content too big
@@ -411,9 +417,9 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
             Log.d(TAG, "Saved text to file: " + file);
             Uri uri = ReplFileProvider.getUriForFile(this, file);
             ShareCompat.IntentBuilder.from(this)
-                .setStream(uri)
-                .setType("text/plain")
-                .startChooser();
+                    .setStream(uri)
+                    .setType("text/plain")
+                    .startChooser();
         } catch (IOException ex) {
             Log.e(TAG, "Failed to save text to file", ex);
         }
@@ -432,7 +438,8 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
 
     /* TextView.OnEditorActionListener */
 
-    @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+    @Override
+    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
         Log.d(TAG, "Input: onEditorAction; actionId=" + actionId + "; event=" + event);
         if (actionId == EditorInfo.IME_NULL) {
             if (v.length() > 0) {
@@ -450,7 +457,8 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
 
     /* View.OnClickListener */
 
-    @Override public void onClick(View v) {
+    @Override
+    public void onClick(View v) {
         if (v == mTabButton) {
             onCompletionTriggered();
         }
@@ -458,30 +466,31 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
 
     /* View.OnKeyListener */
 
-    @Override public boolean onKey(View v, int keyCode, KeyEvent event) {
+    @Override
+    public boolean onKey(View v, int keyCode, KeyEvent event) {
         Log.d(TAG, "Input: onKey; keyCode=" + keyCode + "; event=" + event);
         if (event.getAction() == KeyEvent.ACTION_UP) {
             switch (keyCode) {
-            case KeyEvent.KEYCODE_DPAD_UP:
-                if (setPreviousHistory()) {
-                    return true;
-                }
-                break;
-            case KeyEvent.KEYCODE_DPAD_DOWN:
-                if (setNextHistory()) {
-                    return true;
-                }
-                break;
-            default:
-                return false;
+                case KeyEvent.KEYCODE_DPAD_UP:
+                    if (setPreviousHistory()) {
+                        return true;
+                    }
+                    break;
+                case KeyEvent.KEYCODE_DPAD_DOWN:
+                    if (setNextHistory()) {
+                        return true;
+                    }
+                    break;
+                default:
+                    return false;
             }
         } else if (event.getAction() == KeyEvent.ACTION_DOWN) {
             switch (keyCode) {
-            case KeyEvent.KEYCODE_TAB:
-                onCompletionTriggered();
-                return true;
-            default:
-                return false;
+                case KeyEvent.KEYCODE_TAB:
+                    onCompletionTriggered();
+                    return true;
+                default:
+                    return false;
             }
         }
         return false;
@@ -489,7 +498,8 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
 
     /* TextWatcher */
 
-    @Override public void beforeTextChanged(CharSequence s, final int start, int count, int after) {
+    @Override
+    public void beforeTextChanged(CharSequence s, final int start, int count, int after) {
         Log.d(TAG, "Input: beforeTextChanged; s=" + s + "; start=" + start + ", count=" + count + ", after=" + after);
         if (mProgrammaticEditInProgress) {
             return;
@@ -508,7 +518,9 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
             }
         }
     }
-    @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
         Log.d(TAG, "Input: onTextChanged; s=" + s + "; start=" + start + ", before=" + before + ", count=" + count);
         if (mProgrammaticEditInProgress) {
             return;
@@ -541,7 +553,9 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
             colorParens((Editable) s);
         }
     }
-    @Override public void afterTextChanged(Editable s) {
+
+    @Override
+    public void afterTextChanged(Editable s) {
         Log.d(TAG, "Input: afterTextChanged; s=" + s);
     }
 
@@ -574,7 +588,8 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
     }
 
     private static class ToDelete extends CharacterStyle {
-        @Override public void updateDrawState(TextPaint tp) {
+        @Override
+        public void updateDrawState(TextPaint tp) {
         }
     }
 
@@ -654,9 +669,10 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
     }
 
     private static final int[] LEVEL_COLORS;
+
     static {
         // From rainbow-delimiters.el
-        String[] colorStrings = { "#707183", "#7388d6", "#909183", "#709870", "#907373", "#6276ba", "#858580", "#80a880", "#887070" };
+        String[] colorStrings = {"#707183", "#7388d6", "#909183", "#709870", "#907373", "#6276ba", "#858580", "#80a880", "#887070"};
         int[] colorInts = new int[colorStrings.length];
         for (int i = 0; i < colorStrings.length; i++) {
             colorInts[i] = Color.parseColor(colorStrings[i]);
@@ -670,14 +686,14 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
         for (int i = 0; i < content.length(); i++) {
             char c = content.charAt(i);
             switch (c) {
-            case '(':
-            case '[':
-                applyLevelColorAt(content, level++, i, i + 1);
-                break;
-            case ')':
-            case ']':
-                applyLevelColorAt(content, --level, i, i + 1);
-                break;
+                case '(':
+                case '[':
+                    applyLevelColorAt(content, level++, i, i + 1);
+                    break;
+                case ')':
+                case ']':
+                    applyLevelColorAt(content, --level, i, i + 1);
+                    break;
             }
         }
     }
