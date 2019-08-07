@@ -443,6 +443,16 @@ public class Engine {
                 return engine.execute((String) args.get(0).getValue(), environment);
             }
         });
+        environment.put(TLSymbolExpression.of("format"), new TLFunction() {
+            @Override public TLExpression invoke(TLListExpression args) throws Exception {
+                String fmt = (String) args.get(0).getValue();
+                Object[] fmtArgs = new Object[args.size() - 1];
+                for (int i = 1; i < args.size(); i++) {
+                    fmtArgs[i - 1] = args.get(i).getValue();
+                }
+                return Engine.expressionOf(String.format(fmt, fmtArgs));
+            }
+        });
         return environment;
     }
 

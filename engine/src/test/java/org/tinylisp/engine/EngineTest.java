@@ -442,4 +442,12 @@ public class EngineTest {
         assertArrayEquals(new Object[] {}, (Object[]) engine.execute("[ ]", stdEnv).getValue());
         assertArrayEquals(new Object[] {}, (Object[]) engine.execute("[  ]", stdEnv).getValue());
     }
+
+    @Test
+    public void testFormat() throws Exception {
+        Engine.TLEnvironment stdEnv = Engine.defaultEnvironment();
+        assertEquals("foo bar", engine.execute("(format \"foo bar\")", stdEnv).getValue());
+        assertEquals("foo 1 bar", engine.execute("(format \"foo %d bar\" 1)", stdEnv).getValue());
+        assertEquals("foo baz bar", engine.execute("(format \"foo %s bar\" \"baz\")", stdEnv).getValue());
+    }
 }
