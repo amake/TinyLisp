@@ -6,10 +6,6 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.CallSuper;
-import android.support.v4.app.ShareCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.Spanned;
 import android.text.TextPaint;
@@ -22,10 +18,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.*;
-import difflib.Chunk;
-import difflib.Delta;
-import difflib.DiffUtils;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ProgressBar;
+import android.widget.ScrollView;
+import android.widget.TextView;
+
+import androidx.annotation.CallSuper;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ShareCompat;
+
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,6 +43,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import difflib.Chunk;
+import difflib.Delta;
+import difflib.DiffUtils;
 
 public class ReplActivity extends AppCompatActivity implements TextView.OnEditorActionListener, View.OnClickListener, View.OnKeyListener, TextWatcher {
 
