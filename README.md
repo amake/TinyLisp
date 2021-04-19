@@ -67,7 +67,7 @@ $ echo "(let ((a 1)(b 2))   (+ a b)'foo)"| ./bin/tlfmt
 ```
 
 ### Engine
-The TinyLisp engine is available as a Maven-style dependency from JCenter:
+The TinyLisp engine is available as a Maven-style dependency:
 
 ```
 implementation 'org.tinylisp:engine:+'
@@ -83,14 +83,14 @@ TLExpression result = engine.execute("(+ 1 2 3)", env); // 6
 ```
 
 ### Formatter
-The formatter is also available from JCenter:
+The formatter is also available as a package:
 
 ```
 implementation 'org.tinylisp:formatter:+'
 ```
 
 ### Android REPL activity
-The Android REPL activity is also available from JCenter:
+The Android REPL activity is also available as a package:
 
 ```
 implementation 'org.tinylisp:activity:+'

@@ -1,7 +1,7 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id 'com.jfrog.bintray'
+    id 'signing'
 }
 
 dependencies {
@@ -39,7 +39,7 @@ task javadocJar(type: Jar) {
 
 publishing {
     publications {
-        myPublication(MavenPublication) {
+        mavenJava(MavenPublication) {
             from components.java
             groupId group
             artifactId 'engine'
@@ -47,15 +47,5 @@ publishing {
             artifact sourceJar
             artifact javadocJar
         }
-    }
-}
-
-bintray {
-    user = rootProject.findProperty('bintrayUser')
-    key = rootProject.findProperty('bintrayKey')
-    publications = ['myPublication']
-    pkg {
-        repo = 'maven'
-        name = 'tinylisp-engine'
     }
 }
