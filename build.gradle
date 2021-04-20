@@ -98,5 +98,5 @@ gradle.projectsEvaluated {
 }
 
 task allDependencies {
-    dependsOn allprojects.collect { "$it.path:dependencies" }
+    dependsOn allprojects.collect { "${it.path}:dependencies" }
 }
