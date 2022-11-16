@@ -32,7 +32,7 @@ ext {
             null
         }
     }
-    java7home = System.env.getOrDefault('JAVA7_HOME', findJavaHome("1.7"))
+    java8home = System.env.getOrDefault('JAVA8_HOME', findJavaHome("1.8"))
 
     def propsFile = file('local.properties')
     if (propsFile.file) {
@@ -46,10 +46,10 @@ ext {
 
 gradle.projectsEvaluated {
     subprojects {
-        if (findProperty("sourceCompatibility") == JavaVersion.VERSION_1_7) {
+        if (findProperty("sourceCompatibility") == JavaVersion.VERSION_1_8) {
             tasks.withType(JavaCompile) {
-                if (java7home) {
-                    options.bootstrapClasspath = files("$java7home/jre/lib/rt.jar")
+                if (java8home) {
+                    options.bootstrapClasspath = files("$java8home/jre/lib/rt.jar")
                 }
             }
         }

@@ -11,8 +11,8 @@ dependencies {
 group 'org.tinylisp'
 version '0.7-SNAPSHOT'
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 import org.apache.tools.ant.filters.ReplaceTokens
 

@@ -7,8 +7,8 @@ plugins {
 group 'org.tinylisp'
 version '0.5-SNAPSHOT'
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 dependencies {
     api project(':engine')
