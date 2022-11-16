@@ -136,7 +136,7 @@ public class Engine {
         @Override public boolean equals(Object o) {
             if (o != null && this.getClass().equals(o.getClass())) {
                 Object oVal = ((TLAtomExpression<?>) o).value;
-                return value == oVal || (value != null && value.equals(oVal));
+                return Objects.equals(value, oVal);
             } else {
                 return false;
             }
@@ -351,7 +351,7 @@ public class Engine {
             @Override public TLExpression invoke(TLListExpression args) {
                 Object arg1 = args.get(0).getValue();
                 Object arg2 = args.get(1).getValue();
-                return expressionOf(arg1 == arg2 || arg1 != null && arg1.equals(arg2));
+                return expressionOf(Objects.equals(arg1, arg2));
             }
         });
         environment.alias(TLSymbolExpression.of("eq"), TLSymbolExpression.of("="));
@@ -423,7 +423,7 @@ public class Engine {
             }
         });
         environment.put(TLSymbolExpression.of("parse"), new TLFunction() {
-            @Override public TLExpression invoke(TLListExpression args) throws Exception {
+            @Override public TLExpression invoke(TLListExpression args) {
                 return engine.parse((String) args.get(0).getValue());
             }
         });
@@ -444,7 +444,7 @@ public class Engine {
             }
         });
         environment.put(TLSymbolExpression.of("format"), new TLFunction() {
-            @Override public TLExpression invoke(TLListExpression args) throws Exception {
+            @Override public TLExpression invoke(TLListExpression args) {
                 String fmt = (String) args.get(0).getValue();
                 Object[] fmtArgs = new Object[args.size() - 1];
                 for (int i = 1; i < args.size(); i++) {
@@ -575,33 +575,36 @@ public class Engine {
     private TLExpression readTokens(ArrayList<String> tokens) {
         String token = popToNext(tokens);
         tokens.remove(0);
-        if ("(".equals(token)) {
-            TLListExpression expression = new TLListExpression();
-            while (!")".equals(popToNext(tokens))) {
+        switch (token) {
+            case "(": {
+                TLListExpression expression = new TLListExpression();
+                while (!")".equals(popToNext(tokens))) {
+                    expression.add(readTokens(tokens));
+                }
+                tokens.remove(0);
+                return expression;
+            }
+            case "[":
+                List<Object> values = new ArrayList<>();
+                while (!"]".equals(popToNext(tokens))) {
+                    // Arrays can only contain atoms
+                    TLAtomExpression<?> atom = (TLAtomExpression<?>) readTokens(tokens);
+                    values.add(atom.getValue());
+                }
+                tokens.remove(0);
+                return TLArrayExpression.from(values);
+            case "\"":
+                String string = tokens.remove(0);
+                tokens.remove(0);
+                return TLJavaObjectExpression.of(string);
+            case "'": {
+                TLListExpression expression = new TLListExpression();
+                expression.add(atomize("quote"));
                 expression.add(readTokens(tokens));
+                return expression;
             }
-            tokens.remove(0);
-            return expression;
-        } else if ("[".equals(token)) {
-            List<Object> values = new ArrayList<>();
-            while (!"]".equals(popToNext(tokens))) {
-                // Arrays can only contain atoms
-                TLAtomExpression atom = (TLAtomExpression) readTokens(tokens);
-                values.add(atom.getValue());
-            }
-            tokens.remove(0);
-            return TLArrayExpression.from(values);
-        } else if ("\"".equals(token)) {
-            String string = tokens.remove(0);
-            tokens.remove(0);
-            return TLJavaObjectExpression.of(string);
-        } else if ("'".equals(token)) {
-            TLListExpression expression = new TLListExpression();
-            expression.add(atomize("quote"));
-            expression.add(readTokens(tokens));
-            return expression;
-        } else {
-            return atomize(token);
+            default:
+                return atomize(token);
         }
     }
 

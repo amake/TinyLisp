@@ -13,7 +13,7 @@ public class Formatter {
     private static final Logger LOGGER = Logger.getLogger(Formatter.class.getName());
 
     private final Engine mEngine = new Engine();
-    private List<Visitor> mVisitors = new ArrayList<>(Arrays.asList(WHITESPACE_NORMALIZER, LET_FORMATTER, IF_FORMATTER,
+    private final List<Visitor> mVisitors = new ArrayList<>(Arrays.asList(WHITESPACE_NORMALIZER, LET_FORMATTER, IF_FORMATTER,
             PROGN_FORMATTER, LAMBDA_FORMATTER, COMMENT_FORMATTER, MULTILINE_FORM_FORMATTER));
 
     public String format(String program) {
@@ -120,49 +120,40 @@ public class Formatter {
         }
     };
 
-    private static final Visitor PROGN_FORMATTER = new Visitor() {
-        @Override public void visit(TLAggregateToken parent, TLToken child, int depth) {
-            if (isFunctionCall(child, "progn")) {
-                linebreakAfterRest(((TLAggregateToken) child), 1);
-            }
+    private static final Visitor PROGN_FORMATTER = (parent, child, depth) -> {
+        if (isFunctionCall(child, "progn")) {
+            linebreakAfterRest(((TLAggregateToken) child), 1);
         }
     };
 
-    private static final Visitor LAMBDA_FORMATTER = new Visitor() {
-        @Override public void visit(TLAggregateToken parent, TLToken child, int depth) {
-            if (isFunctionCall(child, "lambda")) {
-                linebreakAfterRest((TLAggregateToken) child, 2);
-            }
+    private static final Visitor LAMBDA_FORMATTER = (parent, child, depth) -> {
+        if (isFunctionCall(child, "lambda")) {
+            linebreakAfterRest((TLAggregateToken) child, 2);
         }
     };
 
-    private static final Visitor COMMENT_FORMATTER = new Visitor() {
-        @Override public void visit(TLAggregateToken parent, TLToken child, int depth) {
-            if (child instanceof TLAggregateToken) {
-                TLAggregateToken aggregate = (TLAggregateToken) child;
-                for (int i = 0; i < aggregate.size(); i++) {
-                    TLToken token = aggregate.get(i);
-                    if (isLineComment(token)) {
-                        linebreakAt(aggregate, i - 1);
-                    }
+    private static final Visitor COMMENT_FORMATTER = (parent, child, depth) -> {
+        if (child instanceof TLAggregateToken) {
+            TLAggregateToken aggregate = (TLAggregateToken) child;
+            for (int i = 0; i < aggregate.size(); i++) {
+                TLToken token = aggregate.get(i);
+                if (isLineComment(token)) {
+                    linebreakAt(aggregate, i - 1);
                 }
             }
         }
     };
 
-    private static final Visitor MULTILINE_FORM_FORMATTER = new Visitor() {
-        @Override
-        public void visit(TLAggregateToken parent, TLToken child, int depth) {
-            if (isList(child)) {
-                TLAggregateToken list = (TLAggregateToken) child;
-                for (int i = indexOfNthNonWhitespace(list, 2);
-                     i >= 0 && i < list.size() - 1;
-                     i = skipWhitespace(list, i + 1)) {
-                    TLToken token = list.get(i);
-                    if (token instanceof TLAggregateToken && hasAtom((TLAggregateToken) token, "\n")) {
-                        if (countNonWhitespace(list, i + 1) > 1) {
-                            linebreakAt(list, i + 1);
-                        }
+    private static final Visitor MULTILINE_FORM_FORMATTER = (parent, child, depth) -> {
+        if (isList(child)) {
+            TLAggregateToken list = (TLAggregateToken) child;
+            for (int i = indexOfNthNonWhitespace(list, 2);
+                 i >= 0 && i < list.size() - 1;
+                 i = skipWhitespace(list, i + 1)) {
+                TLToken token = list.get(i);
+                if (token instanceof TLAggregateToken && hasAtom((TLAggregateToken) token, "\n")) {
+                    if (countNonWhitespace(list, i + 1) > 1) {
+                        linebreakAt(list, i + 1);
                     }
                 }
             }
@@ -306,7 +297,7 @@ public class Formatter {
     }
 
     public interface TLToken {
-        public void append(StringBuilder builder);
+        void append(StringBuilder builder);
     }
 
     public static class TLAtomToken implements TLToken {

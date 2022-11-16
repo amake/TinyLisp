@@ -14,12 +14,9 @@ public class FormatterTest {
     }
 
     @Test public void testCustomVisitor() {
-        formatter.addVisitor(new Formatter.Visitor() {
-            @Override
-            public void visit(Formatter.TLAggregateToken parent, Formatter.TLToken child, int depth) {
-                if (child instanceof Formatter.TLAtomToken) {
-                    ((Formatter.TLAtomToken) child).value += '!';
-                }
+        formatter.addVisitor((parent, child, depth) -> {
+            if (child instanceof Formatter.TLAtomToken) {
+                ((Formatter.TLAtomToken) child).value += '!';
             }
         });
         assertEquals("(!a! !b! !c!)!", formatter.format("(a b c)"));
