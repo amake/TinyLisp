@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.Spanned;
@@ -38,11 +37,12 @@ import org.tinylisp.formatter.Formatter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import difflib.Chunk;
 import difflib.Delta;
@@ -109,24 +109,14 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
         mEnv.put(Engine.TLSymbolExpression.of("clear"), new Engine.TLFunction() {
             @Override
             public Engine.TLExpression invoke(Engine.TLListExpression args) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        clear();
-                    }
-                });
+                runOnUiThread(ReplActivity.this::clear);
                 return null;
             }
         });
         mEnv.put(Engine.TLSymbolExpression.of("reset"), new Engine.TLFunction() {
             @Override
             public Engine.TLExpression invoke(Engine.TLListExpression args) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        initRepl();
-                    }
-                });
+                runOnUiThread(ReplActivity.this::initRepl);
                 return null;
             }
         });
@@ -162,12 +152,9 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
         for (String string : strings) {
             mOutput.append(string);
         }
-        mScrollView.post(new Runnable() {
-            @Override
-            public void run() {
-                mScrollView.fullScroll(View.FOCUS_DOWN);
-                mInput.requestFocus();
-            }
+        mScrollView.post(() -> {
+            mScrollView.fullScroll(View.FOCUS_DOWN);
+            mInput.requestFocus();
         });
     }
 
@@ -225,74 +212,34 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
         }
     }
 
-    private ExecuteAsync mExecution;
+    private final ExecutorService mExecutor = Executors.newSingleThreadExecutor();
 
     protected void executeAsync(String input) {
         // echo
         print("\n> ", input.replace("\n", "\n  "), "\n");
-        ExecuteAsync prev = mExecution;
-        if (prev != null) {
-            prev.cancel(true);
-        }
-        mExecution = new ExecuteAsync(new WeakReference<>(this), mEngine, mEnv);
-        mExecution.execute(input);
-    }
 
-    private static class ExecuteAsync extends AsyncTask<String, Void, Engine.TLExpression> {
-        private final WeakReference<ReplActivity> mActivity;
-        private final Engine mEngine;
-        private final Engine.TLEnvironment mEnv;
-        private Exception mError;
+        mInput.setEnabled(false);
+        mProgress.setVisibility(View.VISIBLE);
 
-        ExecuteAsync(WeakReference<ReplActivity> weakActivity, Engine engine, Engine.TLEnvironment env) {
-            mActivity = weakActivity;
-            mEngine = engine;
-            mEnv = env;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            ReplActivity activity = mActivity.get();
-            if (activity != null) {
-                activity.mInput.setEnabled(false);
-                activity.mProgress.setVisibility(View.VISIBLE);
-            }
-        }
-
-        @Override
-        protected Engine.TLExpression doInBackground(String... strings) {
+        mExecutor.execute(() -> {
             try {
                 long start = System.currentTimeMillis();
-                Engine.TLExpression result = mEngine.execute(strings[0], mEnv);
+                Engine.TLExpression result = mEngine.execute(input, mEnv);
                 long end = System.currentTimeMillis();
                 Log.d(TAG, "Execution took " + (end - start) + "ms");
-                return result;
+                runOnUiThread(() -> onExecutionSucceeded(result));
             } catch (Exception e) {
-                mError = e;
+                runOnUiThread(() -> printException(e));
             }
-            return null;
-        }
 
-        @Override
-        protected void onPostExecute(Engine.TLExpression result) {
-            if (isCancelled()) {
-                return;
-            }
-            ReplActivity activity = mActivity.get();
-            if (activity != null) {
-                if (mError == null) {
-                    activity.onExecutionSucceeded(result);
-                } else {
-                    activity.printException(mError);
-                }
-                activity.mProgress.setVisibility(View.GONE);
-                activity.mInput.setEnabled(true);
-            }
-        }
+            runOnUiThread(() ->{
+                mProgress.setVisibility(View.GONE);
+                mInput.setEnabled(true);
+            });
+        });
     }
 
     protected void onExecutionSucceeded(Engine.TLExpression result) {
-        mExecution = null;
         mEnv.put(Engine.TLSymbolExpression.of("_"), result);
         print(result == null ? "" : result.toString(), "\n");
     }
@@ -319,7 +266,7 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
     /* REPL history */
 
     private static final String HISTORY_KEY = "historyKey";
-    private List<String> mHistory = new ArrayList<>();
+    private final List<String> mHistory = new ArrayList<>();
     private Integer mHistoryIndex;
     private Integer mSessionStart;
 
@@ -352,7 +299,7 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
             mHistoryIndex = mHistory.size();
         }
         mHistoryIndex = Math.max(mHistoryIndex - 1, 0);
-        if (mHistoryIndex >= 0 && mHistoryIndex < mHistory.size()) {
+        if (mHistoryIndex < mHistory.size()) {
             String replacement = mHistory.get(mHistoryIndex);
             mInput.setText(replacement);
             mInput.setSelection(mInput.length());
@@ -403,7 +350,7 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
 
     private void sharePlainText(String text) {
         try {
-            ShareCompat.IntentBuilder.from(this)
+            new ShareCompat.IntentBuilder(this)
                     .setText(text)
                     .setType("text/plain")
                     .startChooser();
@@ -416,7 +363,7 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
             File file = saveTextToFile(text);
             Log.d(TAG, "Saved text to file: " + file);
             Uri uri = ReplFileProvider.getUriForFile(this, file);
-            ShareCompat.IntentBuilder.from(this)
+            new ShareCompat.IntentBuilder(this)
                     .setStream(uri)
                     .setType("text/plain")
                     .startChooser();
@@ -427,12 +374,9 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
 
     private File saveTextToFile(String text) throws IOException {
         File temp = File.createTempFile(getApplication().getPackageName(), ".log", getCacheDir());
-        FileOutputStream out = new FileOutputStream(temp);
-        try {
+        try (FileOutputStream out = new FileOutputStream(temp)) {
             out.write(text.getBytes("utf-8"));
             return temp;
-        } finally {
-            out.close();
         }
     }
 
@@ -609,15 +553,12 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
 
     /* Input autoformatting */
 
-    private static final Comparator<Delta<?>> DELTA_COMPARATOR = new Comparator<Delta<?>>() {
-        @Override
-        public int compare(Delta<?> d1, Delta<?> d2) {
-            int pos1 = d1.getOriginal().getPosition();
-            int pos2 = d2.getOriginal().getPosition();
-            // Smaller position is sorted last so offsets remain correct.
-            // Can't use Integer.compare() at this Android API level.
-            return pos1 == pos2 ? 0 : pos1 < pos2 ? 1 : -1;
-        }
+    private static final Comparator<Delta<?>> DELTA_COMPARATOR = (d1, d2) -> {
+        int pos1 = d1.getOriginal().getPosition();
+        int pos2 = d2.getOriginal().getPosition();
+        // Smaller position is sorted last so offsets remain correct.
+        // Can't use Integer.compare() at this Android API level.
+        return Integer.compare(pos2, pos1);
     };
 
     private void formatInput(String input) {
