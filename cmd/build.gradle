@@ -23,7 +23,7 @@ run {
 
 task fmtScripts(type: CreateStartScripts) {
     applicationName = 'tlfmt'
-    mainClassName = 'org.tinylisp.cmd.Fmt'
+    mainClass = 'org.tinylisp.cmd.Fmt'
     outputDir = file("$buildDir/fmtScripts")
     classpath = startScripts.classpath
 }

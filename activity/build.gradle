@@ -42,7 +42,7 @@ dependencies {
 
 task sourceJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
-    archiveClassifier = 'sources'
+    classifier 'sources'
 }
 
 task javadoc(type: Javadoc) {
@@ -52,7 +52,7 @@ task javadoc(type: Javadoc) {
 
 task javadocJar(type: Jar) {
     from javadoc.outputs
-    archiveClassifier = 'javadoc'
+    classifier 'javadoc'
 }
 
 publishing {

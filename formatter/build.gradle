@@ -17,12 +17,12 @@ dependencies {
 
 task sourceJar(type: Jar) {
     from sourceSets.main.allJava
-    archiveClassifier = 'sources'
+    classifier 'sources'
 }
 
 task javadocJar(type: Jar) {
     from javadoc.outputs
-    archiveClassifier = 'javadoc'
+    classifier 'javadoc'
 }
 
 publishing {
