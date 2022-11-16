@@ -413,7 +413,7 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
     @Override
     public boolean onKey(View v, int keyCode, KeyEvent event) {
         Log.d(TAG, "Input: onKey; keyCode=" + keyCode + "; event=" + event);
-        if (event.getAction() == KeyEvent.ACTION_UP) {
+        if (event.getAction() == KeyEvent.ACTION_DOWN) {
             switch (keyCode) {
                 case KeyEvent.KEYCODE_DPAD_UP:
                     if (setPreviousHistory()) {
@@ -425,11 +425,6 @@ public class ReplActivity extends AppCompatActivity implements TextView.OnEditor
                         return true;
                     }
                     break;
-                default:
-                    return false;
-            }
-        } else if (event.getAction() == KeyEvent.ACTION_DOWN) {
-            switch (keyCode) {
                 case KeyEvent.KEYCODE_TAB:
                     onCompletionTriggered();
                     return true;
