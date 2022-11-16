@@ -12,7 +12,7 @@ targetCompatibility = 1.7
 
 dependencies {
     api project(':engine')
-    testImplementation 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.13.2'
 }
 
 task sourceJar(type: Jar) {

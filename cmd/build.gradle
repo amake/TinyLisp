@@ -7,7 +7,7 @@ dependencies {
     implementation project(':engine')
     implementation project(':formatter')
     implementation 'org.jline:jline:3.9.0'
-    testImplementation 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.13.2'
 }
 
 applicationName = 'tinylisp'
