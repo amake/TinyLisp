@@ -25,6 +25,12 @@ android {
     }
     namespace 'org.tinylisp.activity'
 
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
 }
 
 dependencies {
