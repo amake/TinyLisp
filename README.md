@@ -99,11 +99,9 @@ implementation 'org.tinylisp:activity:+'
 The activity class is `org.tinylisp.activity.ReplActivity`.
 
 ## Requirements
-The TinyLisp engine targets Java 7 for Android compatibility.
+The engine, formatter, and CLI executables require Java 8+.
 
-The Android REPL activity targets API 28 (min API 15).
-
-The CLI executables require Java 8+.
+The Android REPL activity targets API 32 (min API 15).
 
 ## Limitations
 - The point is to be small and simple, so many standard commands are missing
