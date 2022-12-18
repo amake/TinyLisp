@@ -77,8 +77,8 @@ public class Repl {
     public void start() {
         mTerminal.writer().printf("TinyLisp %s\n", Engine.VERSION);
         while (true) {
-            String input = prompt();
-            if (input != null && !input.isEmpty()) {
+            String input = prompt().trim();
+            if (!input.isEmpty()) {
                 try {
                     Engine.TLExpression result = mEngine.execute(input, mEnv);
                     mEnv.put(Engine.TLSymbolExpression.of("_"), result);
@@ -98,6 +98,6 @@ public class Repl {
         } catch (EndOfFileException ex) {
             System.exit(0);
         }
-        return null;
+        return "";
     }
 }
