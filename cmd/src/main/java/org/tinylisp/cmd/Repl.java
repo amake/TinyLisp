@@ -66,6 +66,12 @@ public class Repl {
                 return Engine.expressionOf(null);
             }
         });
+        mEnv.put(Engine.TLSymbolExpression.of("exit"), new Engine.TLFunction() {
+            @Override
+            public Engine.TLExpression invoke(Engine.TLListExpression args) {
+                throw new UserExitException();
+            }
+        });
     }
 
     public void clear() {
@@ -83,6 +89,8 @@ public class Repl {
                     Engine.TLExpression result = mEngine.execute(input, mEnv);
                     mEnv.put(Engine.TLSymbolExpression.of("_"), result);
                     mTerminal.writer().println(result.getValue() == null ? "" : result);
+                } catch (UserExitException ex) {
+                    System.exit(0);
                 } catch (Exception ex) {
                     mTerminal.writer().println(ex);
                 }
@@ -100,4 +108,6 @@ public class Repl {
         }
         return "";
     }
+
+    private static class UserExitException extends RuntimeException {}
 }
